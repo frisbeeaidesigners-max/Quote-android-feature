@@ -43,6 +43,7 @@ import com.example.template.core.ui.AppScaffold
 import com.example.template.core.ui.AppTheme
 import com.example.template.core.ui.LocalBitmapCache
 import com.example.template.core.ui.LocalThemeToggle
+import com.example.template.core.ui.LocalQuotePickerVariant
 import com.example.template.feature.chatdetail.ChatDetailScreen
 import com.example.template.feature.chatdetail.ChatDetailViewModel
 import com.example.template.feature.chatdetail.ContextMenuOverlay
@@ -80,6 +81,7 @@ class MainActivity : ComponentActivity() {
                 LocalAppContainer provides container,
                 LocalBitmapCache provides container.bitmapCache,
                 LocalThemeToggle provides toggleTheme,
+                LocalQuotePickerVariant provides container.quotePickerVariant,
             ) {
                 AppTheme(isDark = isDark) {
                     // SplashOverlay рендерится поверх всего на первой композиции; main UI ниже
