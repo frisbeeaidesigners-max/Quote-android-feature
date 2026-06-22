@@ -1,0 +1,6 @@
+[
+  {"type": "system", "id": "s-1", "chatId": "grp-06", "senderId": "u-07", "timestamp": 1778500000000, "isMine": false, "status": "NONE", "reactions": [], "replyTo": null, "kind": "Joined"},
+  {"type": "text", "id": "m-1", "chatId": "grp-06", "senderId": "u-04", "timestamp": 1778501000000, "isMine": false, "status": "NONE", "reactions": [], "replyTo": null, "body": "Ирина, рады тебе. QA-чек по дизайну будет твоим.", "formatting": []},
+  {"type": "text", "id": "m-2", "chatId": "grp-06", "senderId": "u-07", "timestamp": 1778501600000, "isMine": false, "status": "NONE", "reactions": [], "replyTo": null, "body": "Поняла, спасибо! Где смотреть макеты?", "formatting": []},
+  {"type": "text", "id": "m-3", "chatId": "grp-06", "senderId": "u-04", "timestamp": 1778658660000, "isMine": false, "status": "NONE", "reactions": [], "replyTo": null, "body": "Готовы новые макеты профиля, посмотрите в Figma.", "formatting": []}
+]

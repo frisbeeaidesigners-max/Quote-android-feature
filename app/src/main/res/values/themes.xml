@@ -1,0 +1,14 @@
+<resources>
+    <style name="Theme.Template" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Стилизация floating ActionMode (text-selection меню «Скопировать»/«Цитировать»).
+             ds_* ресурсы автоматически свапаются на values-night. Цвет фона floating toolbar
+             в публичном API недоступен (floatingToolbarBackgroundColor — hidden), пытаемся
+             через colorBackgroundFloating; на MIUI может игнорироваться. -->
+        <item name="android:actionMenuTextColor">@color/ds_basic_90</item>
+        <item name="android:colorBackgroundFloating">@color/ds_background_second</item>
+        <!-- Splash window background — показывается до первого кадра Compose. Иначе была дефолтная
+             белая Material.Light подложка («белый экран при запуске»). Цвет — фиксированный
+             #1A1A1A независимо от системного night-mode (см. SplashOverlay.kt). -->
+        <item name="android:windowBackground">@color/splash_background</item>
+    </style>
+</resources>

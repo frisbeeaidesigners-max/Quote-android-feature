@@ -1,0 +1,20 @@
+[
+  {"type": "text", "id": "m-1", "chatId": "chat-11", "senderId": "u-self", "timestamp": 1778340600349,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Николай, добрый день. Отправил вам предложение по партнёрской программе.", "formatting": []},
+  {"type": "text", "id": "m-2", "chatId": "chat-11", "senderId": "u-11", "timestamp": 1778347800349,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Получил, благодарю. Изучу с командой и вернусь.", "formatting": []},
+  {"type": "text", "id": "m-3", "chatId": "chat-11", "senderId": "u-11", "timestamp": 1778513400349,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "По 2 пункту нужны уточнения — какие KPI считаем?", "formatting": []},
+  {"type": "text", "id": "m-4", "chatId": "chat-11", "senderId": "u-self", "timestamp": 1778513700349,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Привязываемся к закрытым сделкам, не к пайплайну. Минимум — 5 в квартал.", "formatting": []},
+  {"type": "text", "id": "m-5", "chatId": "chat-11", "senderId": "u-11", "timestamp": 1778517000349,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Понятно. Обсудим внутри.", "formatting": []},
+  {"type": "text", "id": "m-6", "chatId": "chat-11", "senderId": "u-11", "timestamp": 1778599800349,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Добрый день, коллеги!", "formatting": []}
+]

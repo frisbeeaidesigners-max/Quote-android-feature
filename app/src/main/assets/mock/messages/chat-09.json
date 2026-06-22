@@ -1,0 +1,23 @@
+[
+  {"type": "text", "id": "m-1", "chatId": "chat-09", "senderId": "u-self", "timestamp": 1777629600000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Павел, привет. Скинул на почту отчёты по продажам за прошлый период — нужна твоя оценка по аналитике.", "formatting": []},
+  {"type": "text", "id": "m-2", "chatId": "chat-09", "senderId": "u-09", "timestamp": 1777636800000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Принято, гляну на этой неделе.", "formatting": []},
+  {"type": "text", "id": "m-3", "chatId": "chat-09", "senderId": "u-self", "timestamp": 1777716000000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Когда смогу ожидать? Шеф спрашивает к среде.", "formatting": []},
+  {"type": "text", "id": "m-4", "chatId": "chat-09", "senderId": "u-09", "timestamp": 1777717800000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Сегодня вечером сяду посмотрю.", "formatting": []},
+  {"type": "text", "id": "m-5", "chatId": "chat-09", "senderId": "u-09", "timestamp": 1777802400000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Глянул верхний уровень — общие тренды понял. Детально пройдусь завтра утром.", "formatting": []},
+  {"type": "text", "id": "m-6", "chatId": "chat-09", "senderId": "u-self", "timestamp": 1777881600000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Хорошо, жду фидбек.", "formatting": []},
+  {"type": "text", "id": "m-7", "chatId": "chat-09", "senderId": "u-09", "timestamp": 1777888800000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Я ознакомился с отчётами за прошлый период.", "formatting": []}
+]

@@ -1,0 +1,23 @@
+[
+  {"type": "text", "id": "m-1", "chatId": "chat-13", "senderId": "u-13", "timestamp": 1776589200000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Иван, по JIRA-2841 — задача висит в 'In Review' уже неделю. Какой статус?", "formatting": []},
+  {"type": "text", "id": "m-2", "chatId": "chat-13", "senderId": "u-self", "timestamp": 1776592800000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Ольга, отдал на ревью Серёге, должен был посмотреть в среду — постучу к нему.", "formatting": []},
+  {"type": "text", "id": "m-3", "chatId": "chat-13", "senderId": "u-self", "timestamp": 1776675600000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Серёга подтвердил — будет ревью сегодня.", "formatting": []},
+  {"type": "text", "id": "m-4", "chatId": "chat-13", "senderId": "u-13", "timestamp": 1776762000000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Уже четверг :)", "formatting": []},
+  {"type": "text", "id": "m-5", "chatId": "chat-13", "senderId": "u-self", "timestamp": 1776762300000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Знаю, проверю с него лично сейчас.", "formatting": []},
+  {"type": "text", "id": "m-6", "chatId": "chat-13", "senderId": "u-13", "timestamp": 1776844800000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Не торопись, пометь как-нибудь, чтобы не выпала.", "formatting": []},
+  {"type": "text", "id": "m-7", "chatId": "chat-13", "senderId": "u-13", "timestamp": 1776848400000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Прошу обновить статус задачи.", "formatting": []}
+]

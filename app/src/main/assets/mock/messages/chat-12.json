@@ -1,0 +1,23 @@
+[
+  {"type": "text", "id": "m-1", "chatId": "chat-12", "senderId": "u-12", "timestamp": 1777213800000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Иван, давайте на четверг встретимся обсудить интеграцию с банком — у меня плотный график до этого.", "formatting": []},
+  {"type": "text", "id": "m-2", "chatId": "chat-12", "senderId": "u-self", "timestamp": 1777215600000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Согласен, четверг 11:00 устроит?", "formatting": []},
+  {"type": "text", "id": "m-3", "chatId": "chat-12", "senderId": "u-12", "timestamp": 1777215900000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Да, поставил себе.", "formatting": []},
+  {"type": "text", "id": "m-4", "chatId": "chat-12", "senderId": "u-self", "timestamp": 1777300200000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Александр, на встрече будет ещё Илья из юр.отдела — нужно согласовать договорные моменты.", "formatting": []},
+  {"type": "text", "id": "m-5", "chatId": "chat-12", "senderId": "u-12", "timestamp": 1777300800000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Понял, без проблем.", "formatting": []},
+  {"type": "text", "id": "m-6", "chatId": "chat-12", "senderId": "u-12", "timestamp": 1777375800000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Извините, у нас сегодня внеплановое совещание выпало на это же время.", "formatting": []},
+  {"type": "text", "id": "m-7", "chatId": "chat-12", "senderId": "u-12", "timestamp": 1777386600000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Перенесите, пожалуйста, встречу.", "formatting": []}
+]

@@ -1,0 +1,189 @@
+[
+  {
+    "id": "chat-14", "type": "P2P", "title": "Сохраненные",
+    "avatar": {"type": "Self", "initials": "", "gradientIndex": 0},
+    "spaceId": null, "participantIds": [],
+    "lastMessage": {"text": "Изображение", "kind": "Text", "timestamp": 1778685780000, "ownStatus": "NONE"},
+    "pinned": true
+  },
+  {
+    "id": "chat-01", "type": "P2P", "title": "Мария Климова",
+    "avatar": {"type": "Person", "initials": "МК", "gradientIndex": 1},
+    "spaceId": null, "participantIds": ["u-01"],
+    "lastMessage": {"text": "Отправила материалы для итогового отчёта.", "kind": "Text", "timestamp": 1778683620000, "ownStatus": "NONE"},
+    "unreadCount": 0, "pinned": true, "hasPinnedMessages": true
+  },
+  {
+    "id": "chat-02", "type": "P2P", "title": "Виктория Нечаева",
+    "avatar": {"type": "Person", "initials": "ВН", "gradientIndex": 2},
+    "spaceId": null, "participantIds": ["u-02"],
+    "lastMessage": {"text": "Согласовала встречу на завтра, 11:00.", "kind": "Text", "timestamp": 1778678040000, "ownStatus": "NONE"},
+    "unreadCount": 2
+  },
+  {
+    "id": "chat-08", "type": "P2P", "title": "Алексей Гурин",
+    "avatar": {"type": "Person", "initials": "АГ", "gradientIndex": 8},
+    "spaceId": null, "participantIds": ["u-08"],
+    "lastMessage": {"text": "Спасибо за оперативность!", "kind": "Text", "timestamp": 1778673120000, "ownStatus": "READ"},
+    "muted": true, "unreadCount": 1
+  },
+  {
+    "id": "chat-10", "type": "P2P", "title": "Дмитрий Федоров",
+    "avatar": {"type": "Person", "initials": "ДФ", "gradientIndex": 0},
+    "spaceId": null, "participantIds": ["u-10"],
+    "lastMessage": {"text": "Документ загружен, проверьте.", "kind": "Text", "timestamp": 1778666880000, "ownStatus": "DELIVERED"}
+  },
+  {
+    "id": "chat-04", "type": "P2P", "title": "Софья Баженова",
+    "avatar": {"type": "Person", "initials": "СБ", "gradientIndex": 4},
+    "spaceId": null, "participantIds": ["u-04"],
+    "lastMessage": {"text": "печатает...", "kind": "Typing", "timestamp": 1778661360000, "ownStatus": "NONE"}
+  },
+  {
+    "id": "chat-05", "type": "P2P", "title": "Анна Ковалёва",
+    "avatar": {"type": "Person", "initials": "АК", "gradientIndex": 5},
+    "spaceId": null, "participantIds": ["u-05"],
+    "lastMessage": {"text": "Добрый день! Прошу уточнить текущие условия и обстановку.", "kind": "Text", "timestamp": 1778654520000, "ownStatus": "NONE"}
+  },
+  {
+    "id": "chat-11", "type": "P2P", "title": "Николай Павлов",
+    "avatar": {"type": "Person", "initials": "НП", "gradientIndex": 4},
+    "spaceId": null, "participantIds": ["u-11"],
+    "lastMessage": {"text": "Добрый день, коллеги!", "kind": "Text", "timestamp": 1778599800349, "ownStatus": "NONE"}
+  },
+  {
+    "id": "chat-06", "type": "P2P", "title": "Дарья Лапшина",
+    "avatar": {"type": "Person", "initials": "ДЛ", "gradientIndex": 6},
+    "spaceId": null, "participantIds": ["u-06"],
+    "lastMessage": {"text": "Хорошо, договорились!", "kind": "Text", "timestamp": 1778589900349, "ownStatus": "DELIVERED"}
+  },
+  {
+    "id": "chat-07", "type": "P2P", "title": "Ирина Соловьёва",
+    "avatar": {"type": "Person", "initials": "ИС", "gradientIndex": 7},
+    "spaceId": null, "participantIds": ["u-07"],
+    "lastMessage": {"text": "Коллеги, прошу согласовать время.", "kind": "Draft", "timestamp": 1778515200349, "ownStatus": "NONE"}
+  },
+  {
+    "id": "chat-03", "type": "P2P", "title": "Екатерина Орлова",
+    "avatar": {"type": "Person", "initials": "ЕО", "gradientIndex": 3},
+    "spaceId": null, "participantIds": ["u-03"],
+    "lastMessage": {"text": "Жду документы по проекту.", "kind": "Text", "timestamp": 1778505600349, "ownStatus": "READ"}
+  },
+  {
+    "id": "chat-09", "type": "P2P", "title": "Павел Сердюков",
+    "avatar": {"type": "Person", "initials": "ПС", "gradientIndex": 9},
+    "spaceId": null, "participantIds": ["u-09"],
+    "lastMessage": {"text": "Я ознакомился с отчётами за прошлый период.", "kind": "Text", "timestamp": 1777888800000, "ownStatus": "NONE"},
+    "unreadCount": 1
+  },
+  {
+    "id": "chat-12", "type": "P2P", "title": "Александр Иванов",
+    "avatar": {"type": "Person", "initials": "АИ", "gradientIndex": 6},
+    "spaceId": null, "participantIds": ["u-12"],
+    "lastMessage": {"text": "Перенесите, пожалуйста, встречу.", "kind": "Text", "timestamp": 1777386600000, "ownStatus": "NONE"},
+    "muted": true
+  },
+  {
+    "id": "chat-13", "type": "P2P", "title": "Ольга Орехова",
+    "avatar": {"type": "Person", "initials": "ОО", "gradientIndex": 10},
+    "spaceId": null, "participantIds": ["u-13"],
+    "lastMessage": {"text": "Прошу обновить статус задачи.", "kind": "Text", "timestamp": 1776848400000, "ownStatus": "NONE"}
+  },
+  {
+    "id": "grp-01", "type": "Group", "title": "Конференция",
+    "avatar": {"type": "Group", "initials": "К", "gradientIndex": 1},
+    "spaceId": "sp-1", "participantIds": ["u-01", "u-02", "u-03"],
+    "lastMessage": {"text": "Отправила материалы для итогового отчёта", "kind": "Group", "timestamp": 1778685240000, "ownStatus": "NONE",
+                    "senderName": "Мария Климова", "senderInitials": "МК", "senderGradientIndex": 1, "senderPersonaId": "pe-01"},
+    "unreadCount": 0, "pinned": true, "hasPinnedMessages": true
+  },
+  {
+    "id": "grp-02", "type": "Group", "title": "Аналитика и контроль",
+    "avatar": {"type": "Group", "initials": "АК", "gradientIndex": 4},
+    "spaceId": "sp-1", "participantIds": ["u-01", "u-02", "u-09"],
+    "lastMessage": {"text": "Всё верно, я ознакомился с отчётами за прошлый период.", "kind": "Group", "timestamp": 1778682180000, "ownStatus": "NONE",
+                    "senderName": "Павел Сердюков", "senderInitials": "ПС", "senderGradientIndex": 9, "senderPersonaId": "pe-09"},
+    "unreadCount": 1
+  },
+  {
+    "id": "grp-03", "type": "Group", "title": "Совещание по инициативам",
+    "avatar": {"type": "Group", "initials": "СП", "gradientIndex": 10},
+    "spaceId": "sp-1", "participantIds": ["u-12", "u-13"],
+    "lastMessage": {"text": "Пересогласуем повестку на следующую неделю.", "kind": "Group", "timestamp": 1778676480000, "ownStatus": "NONE",
+                    "senderName": "Александр Иванов", "senderInitials": "АИ", "senderGradientIndex": 6, "senderPersonaId": "pe-12"},
+    "unreadCount": 2, "mention": true, "muted": true
+  },
+  {
+    "id": "grp-04", "type": "Channel", "title": "Новости компании",
+    "avatar": {"type": "Channel", "initials": "НК", "gradientIndex": 0},
+    "spaceId": "sp-1", "participantIds": [],
+    "lastMessage": {"text": "Запуск нового продукта намечен на конец квартала.", "kind": "Text", "timestamp": 1778668560000, "ownStatus": "NONE"}
+  },
+  {
+    "id": "grp-06", "type": "Group", "title": "Дизайн-команда",
+    "avatar": {"type": "Group", "initials": "ДК", "gradientIndex": 2},
+    "spaceId": "sp-1", "participantIds": ["u-04", "u-07"],
+    "lastMessage": {"text": "Готовы новые макеты профиля, посмотрите в Figma.", "kind": "Group", "timestamp": 1778658660000, "ownStatus": "NONE",
+                    "senderName": "Софья Баженова", "senderInitials": "СБ", "senderGradientIndex": 4, "senderPersonaId": "pe-04"},
+    "unreadCount": 3
+  },
+  {
+    "id": "grp-07", "type": "Group", "title": "Бэкенд разработка",
+    "avatar": {"type": "Group", "initials": "БР", "gradientIndex": 5},
+    "spaceId": "sp-1", "participantIds": ["u-08", "u-09"],
+    "lastMessage": {"text": "Поднял базу на стейдже, можно тестировать.", "kind": "Group", "timestamp": 1778604120000, "ownStatus": "NONE",
+                    "senderName": "Алексей Гурин", "senderInitials": "АГ", "senderGradientIndex": 8, "senderPersonaId": "pe-08"},
+    "muted": true
+  },
+  {
+    "id": "grp-08", "type": "Group", "title": "Фронтенд разработка",
+    "avatar": {"type": "Group", "initials": "ФР", "gradientIndex": 7},
+    "spaceId": "sp-1", "participantIds": ["u-05", "u-06"],
+    "lastMessage": {"text": "Перевёл иконки на новый дизайн-токен.", "kind": "Group", "timestamp": 1778584680000, "ownStatus": "NONE",
+                    "senderName": "Анна Ковалёва", "senderInitials": "АК", "senderGradientIndex": 5, "senderPersonaId": "pe-05"}
+  },
+  {
+    "id": "grp-09", "type": "Group", "title": "QA-инженеры",
+    "avatar": {"type": "Group", "initials": "QA", "gradientIndex": 8},
+    "spaceId": "sp-1", "participantIds": ["u-03", "u-07"],
+    "lastMessage": {"text": "Прогнала smoke-тесты — без регрессий.", "kind": "Group", "timestamp": 1778513040000, "ownStatus": "NONE",
+                    "senderName": "Ирина Соловьёва", "senderInitials": "ИС", "senderGradientIndex": 7, "senderPersonaId": "pe-07"},
+    "muted": true
+  },
+  {
+    "id": "grp-10", "type": "Channel", "title": "Анонсы релизов",
+    "avatar": {"type": "Channel", "initials": "АР", "gradientIndex": 3},
+    "spaceId": "sp-1", "participantIds": [],
+    "lastMessage": {"text": "Релиз 2.4.0 выкатили в продакшен.", "kind": "Text", "timestamp": 1778400420000, "ownStatus": "NONE"},
+    "unreadCount": 1
+  },
+  {
+    "id": "grp-11", "type": "Group", "title": "HR команда",
+    "avatar": {"type": "Group", "initials": "HR", "gradientIndex": 9},
+    "spaceId": "sp-1", "participantIds": ["u-02"],
+    "lastMessage": {"text": "Напомните о ревью до конца недели.", "kind": "Group", "timestamp": 1778248320000, "ownStatus": "NONE",
+                    "senderName": "Виктория Нечаева", "senderInitials": "ВН", "senderGradientIndex": 2, "senderPersonaId": "pe-02"},
+    "muted": true
+  },
+  {
+    "id": "grp-12", "type": "Group", "title": "DevOps",
+    "avatar": {"type": "Group", "initials": "DO", "gradientIndex": 6},
+    "spaceId": "sp-1", "participantIds": ["u-10", "u-09"],
+    "lastMessage": {"text": "Обновил пайплайн, билд стал быстрее на 18%.", "kind": "Group", "timestamp": 1778136480000, "ownStatus": "NONE",
+                    "senderName": "Дмитрий Федоров", "senderInitials": "ДФ", "senderGradientIndex": 0, "senderPersonaId": "pe-10"}
+  },
+  {
+    "id": "grp-13", "type": "Channel", "title": "Корпоративные мероприятия",
+    "avatar": {"type": "Channel", "initials": "КМ", "gradientIndex": 4},
+    "spaceId": "sp-1", "participantIds": [],
+    "lastMessage": {"text": "Хакатон состоится в первые выходные июня.", "kind": "Text", "timestamp": 1777800600000, "ownStatus": "NONE"},
+    "muted": true
+  },
+  {
+    "id": "grp-05", "type": "Group", "title": "Маркетинг команда",
+    "avatar": {"type": "Group", "initials": "МК", "gradientIndex": 2},
+    "spaceId": "sp-2", "participantIds": ["u-10", "u-11"],
+    "lastMessage": {"text": "Готовлю презентацию", "kind": "Group", "timestamp": 1778067000000, "ownStatus": "NONE",
+                    "senderName": "Дмитрий Федоров", "senderInitials": "ДФ", "senderGradientIndex": 4, "senderPersonaId": "pe-10"}
+  }
+]

@@ -1,0 +1,23 @@
+[
+  {"type": "text", "id": "m-1", "chatId": "chat-04", "senderId": "u-self", "timestamp": 1778657760000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Софья, на странице Профиля карточка навыков немного съезжает на 320px — можешь глянуть?", "formatting": []},
+  {"type": "text", "id": "m-2", "chatId": "chat-04", "senderId": "u-04", "timestamp": 1778658360000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Сейчас открою макет.", "formatting": []},
+  {"type": "text", "id": "m-3", "chatId": "chat-04", "senderId": "u-04", "timestamp": 1778658960000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Вижу проблему — там grid-gap зашит в px вместо токена. Поправлю.", "formatting": []},
+  {"type": "text", "id": "m-4", "chatId": "chat-04", "senderId": "u-self", "timestamp": 1778659560000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Принято. И ещё — кнопка 'Сохранить' под скроллом на маленьких устройствах. Может, sticky сделать?", "formatting": []},
+  {"type": "text", "id": "m-5", "chatId": "chat-04", "senderId": "u-self", "timestamp": 1778659860000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Если сложно — оставим как есть, не критично.", "formatting": []},
+  {"type": "text", "id": "m-6", "chatId": "chat-04", "senderId": "u-04", "timestamp": 1778660460000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Sticky сделаю, наоборот, давно хотела. Заодно поправлю hover на кнопке.", "formatting": []},
+  {"type": "text", "id": "m-7", "chatId": "chat-04", "senderId": "u-self", "timestamp": 1778661060000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Супер, спасибо! Кинь ссылку на готовый макет, как будет.", "formatting": []}
+]

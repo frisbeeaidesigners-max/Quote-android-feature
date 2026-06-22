@@ -1,0 +1,15 @@
+[
+  {"id": "u-01", "name": "Мария Климова",     "avatar": {"type": "Person", "initials": "МК", "gradientIndex": 1},  "status": {"type": "online"},                                  "personaId": "pe-01"},
+  {"id": "u-02", "name": "Виктория Нечаева",  "avatar": {"type": "Person", "initials": "ВН", "gradientIndex": 2},  "status": {"type": "last_seen", "timestamp": 1778688812349},   "personaId": "pe-02"},
+  {"id": "u-03", "name": "Екатерина Орлова",  "avatar": {"type": "Person", "initials": "ЕО", "gradientIndex": 3},  "status": {"type": "offline"},                                 "personaId": "pe-03"},
+  {"id": "u-04", "name": "Софья Баженова",    "avatar": {"type": "Person", "initials": "СБ", "gradientIndex": 4},  "status": {"type": "online"},                                  "personaId": "pe-04"},
+  {"id": "u-05", "name": "Анна Ковалёва",     "avatar": {"type": "Person", "initials": "АК", "gradientIndex": 5},  "status": {"type": "online"},                                  "personaId": "pe-05"},
+  {"id": "u-06", "name": "Дарья Лапшина",     "avatar": {"type": "Person", "initials": "ДЛ", "gradientIndex": 6},  "status": {"type": "last_seen", "timestamp": 1778678012349},   "personaId": "pe-06"},
+  {"id": "u-07", "name": "Ирина Соловьёва",   "avatar": {"type": "Person", "initials": "ИС", "gradientIndex": 7},  "status": {"type": "offline"},                                 "personaId": "pe-07"},
+  {"id": "u-08", "name": "Алексей Гурин",     "avatar": {"type": "Person", "initials": "АГ", "gradientIndex": 8},  "status": {"type": "online"},                                  "personaId": "pe-08"},
+  {"id": "u-09", "name": "Павел Сердюков",    "avatar": {"type": "Person", "initials": "ПС", "gradientIndex": 9},  "status": {"type": "offline"},                                 "personaId": "pe-09"},
+  {"id": "u-10", "name": "Дмитрий Федоров",   "avatar": {"type": "Person", "initials": "ДФ", "gradientIndex": 0},  "status": {"type": "offline"},                                 "personaId": "pe-10"},
+  {"id": "u-11", "name": "Николай Павлов",    "avatar": {"type": "Person", "initials": "НП", "gradientIndex": 4},  "status": {"type": "last_seen", "timestamp": 1778519612349},   "personaId": "pe-11"},
+  {"id": "u-12", "name": "Александр Иванов",  "avatar": {"type": "Person", "initials": "АИ", "gradientIndex": 6},  "status": {"type": "online"},                                  "personaId": "pe-12"},
+  {"id": "u-13", "name": "Ольга Орехова",     "avatar": {"type": "Person", "initials": "ОО", "gradientIndex": 10}, "status": {"type": "offline"},                                 "personaId": "pe-13"}
+]

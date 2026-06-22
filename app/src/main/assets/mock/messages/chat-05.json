@@ -1,0 +1,20 @@
+[
+  {"type": "text", "id": "m-1", "chatId": "chat-05", "senderId": "u-05", "timestamp": 1778481720000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Иван, доброе утро! Получили коммерческое от поставщика. Можно ли поднять смету на 15%?", "formatting": []},
+  {"type": "text", "id": "m-2", "chatId": "chat-05", "senderId": "u-self", "timestamp": 1778482020000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Анна, доброе утро. Поднять можем, но только после согласования с финансовым отделом. Скину сегодня.", "formatting": []},
+  {"type": "text", "id": "m-3", "chatId": "chat-05", "senderId": "u-self", "timestamp": 1778503320000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Согласовали — можно повышать. Договор перешлю на подпись.", "formatting": []},
+  {"type": "text", "id": "m-4", "chatId": "chat-05", "senderId": "u-05", "timestamp": 1778568120000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Спасибо! Подписала, отправила.", "formatting": []},
+  {"type": "text", "id": "m-5", "chatId": "chat-05", "senderId": "u-self", "timestamp": 1778568720000,
+   "isMine": true, "status": "READ", "reactions": [], "replyTo": null,
+   "body": "Получил, спасибо. Передам в работу.", "formatting": []},
+  {"type": "text", "id": "m-6", "chatId": "chat-05", "senderId": "u-05", "timestamp": 1778654520000,
+   "isMine": false, "status": "NONE", "reactions": [], "replyTo": null,
+   "body": "Добрый день! Прошу уточнить текущие условия и обстановку.", "formatting": []}
+]

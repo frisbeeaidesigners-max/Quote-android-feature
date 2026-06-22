@@ -1,0 +1,13 @@
+{
+  "id": "u-self",
+  "name": "Анна Александровна Иванова",
+  "avatar": {"type": "Person", "initials": "АИ", "gradientIndex": 0, "imageAsset": "images/avatar_00.png"},
+  "firstName": "Анна",
+  "middleName": "Александровна",
+  "lastName": "Иванова",
+  "jobTitle": "PR-менеджер",
+  "statusMessage": "Доступна",
+  "email": "anna.ivanova@example.com",
+  "phone": "+7 999 123-45-67",
+  "personaId": "pe-self"
+}

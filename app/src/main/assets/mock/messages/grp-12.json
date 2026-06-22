@@ -1,0 +1,6 @@
+[
+  {"type": "system", "id": "s-1", "chatId": "grp-12", "senderId": "u-09", "timestamp": 1778050000000, "isMine": false, "status": "NONE", "reactions": [], "replyTo": null, "kind": "Joined"},
+  {"type": "text", "id": "m-1", "chatId": "grp-12", "senderId": "u-10", "timestamp": 1778051000000, "isMine": false, "status": "NONE", "reactions": [], "replyTo": null, "body": "Павел, привет. Помоги, пожалуйста, с настройкой Kafka на стейдже.", "formatting": []},
+  {"type": "text", "id": "m-2", "chatId": "grp-12", "senderId": "u-09", "timestamp": 1778051600000, "isMine": false, "status": "NONE", "reactions": [], "replyTo": null, "body": "Готов. Сегодня после обеда созвонимся.", "formatting": []},
+  {"type": "text", "id": "m-3", "chatId": "grp-12", "senderId": "u-10", "timestamp": 1778136480000, "isMine": false, "status": "NONE", "reactions": [], "replyTo": null, "body": "Обновил пайплайн, билд стал быстрее на 18%.", "formatting": []}
+]

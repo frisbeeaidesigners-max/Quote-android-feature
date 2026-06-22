@@ -1,0 +1,16 @@
+[
+  {"id": "pe-self", "firstName": "Анна",    "lastName": "Иванова",   "avatarAsset": "images/avatar_00.png", "gradientIndex": 0,  "gender": "Female"},
+  {"id": "pe-01",   "firstName": "Мария",   "lastName": "Климова",   "avatarAsset": "images/avatar_01.png", "gradientIndex": 1,  "gender": "Female"},
+  {"id": "pe-02",   "firstName": "Виктория","lastName": "Нечаева",   "avatarAsset": "images/avatar_02.png", "gradientIndex": 2,  "gender": "Female"},
+  {"id": "pe-03",   "firstName": "Екатерина","lastName": "Орлова",   "avatarAsset": "images/avatar_03.png", "gradientIndex": 3,  "gender": "Female"},
+  {"id": "pe-04",   "firstName": "Софья",   "lastName": "Баженова",  "avatarAsset": "images/avatar_04.png", "gradientIndex": 4,  "gender": "Female"},
+  {"id": "pe-05",   "firstName": "Анна",    "lastName": "Ковалёва",  "avatarAsset": "images/avatar_05.png", "gradientIndex": 5,  "gender": "Female"},
+  {"id": "pe-06",   "firstName": "Дарья",   "lastName": "Лапшина",   "avatarAsset": "images/avatar_06.png", "gradientIndex": 6,  "gender": "Female"},
+  {"id": "pe-07",   "firstName": "Ирина",   "lastName": "Соловьёва", "avatarAsset": "images/avatar_07.png", "gradientIndex": 7,  "gender": "Female"},
+  {"id": "pe-08",   "firstName": "Алексей", "lastName": "Гурин",     "avatarAsset": "images/avatar_08.png", "gradientIndex": 8,  "gender": "Male"},
+  {"id": "pe-09",   "firstName": "Павел",   "lastName": "Сердюков",  "avatarAsset": "images/avatar_09.png", "gradientIndex": 9,  "gender": "Male"},
+  {"id": "pe-10",   "firstName": "Дмитрий", "lastName": "Федоров",   "avatarAsset": null,                   "gradientIndex": 0,  "gender": "Male"},
+  {"id": "pe-11",   "firstName": "Николай", "lastName": "Павлов",    "avatarAsset": null,                   "gradientIndex": 4,  "gender": "Male"},
+  {"id": "pe-12",   "firstName": "Александр","lastName": "Иванов",   "avatarAsset": null,                   "gradientIndex": 6,  "gender": "Male"},
+  {"id": "pe-13",   "firstName": "Ольга",   "lastName": "Орехова",   "avatarAsset": null,                   "gradientIndex": 10, "gender": "Female"}
+]

@@ -1,0 +1,7 @@
+[
+  {"type": "system", "id": "s-1", "chatId": "grp-01", "senderId": "u-03", "timestamp": 1778600000000, "isMine": false, "status": "NONE", "reactions": [], "replyTo": null, "kind": "Joined"},
+  {"type": "text", "id": "m-1", "chatId": "grp-01", "senderId": "u-03", "timestamp": 1778601000000, "isMine": false, "status": "NONE", "reactions": [], "replyTo": null, "body": "Всем привет! Только присоединилась.", "formatting": []},
+  {"type": "text", "id": "m-2", "chatId": "grp-01", "senderId": "u-01", "timestamp": 1778601600000, "isMine": false, "status": "NONE", "reactions": [], "replyTo": null, "body": "Екатерина, добро пожаловать!", "formatting": []},
+  {"type": "text", "id": "m-3", "chatId": "grp-01", "senderId": "u-self", "timestamp": 1778680000000, "isMine": true, "status": "READ", "reactions": [], "replyTo": null, "body": "Когда ждать материалы по Q1?", "formatting": []},
+  {"type": "text", "id": "m-4", "chatId": "grp-01", "senderId": "u-01", "timestamp": 1778685240000, "isMine": false, "status": "NONE", "reactions": [], "replyTo": null, "body": "Отправила материалы для итогового отчёта", "formatting": []}
+]

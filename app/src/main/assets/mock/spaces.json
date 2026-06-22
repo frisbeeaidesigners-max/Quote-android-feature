@@ -1,0 +1,4 @@
+[
+  {"id": "sp-1", "name": "Команда продукта", "avatar": {"type": "Workspace", "initials": "КП", "gradientIndex": 0}, "accentIndex": 0},
+  {"id": "sp-2", "name": "Маркетинг", "avatar": {"type": "Workspace", "initials": "МК", "gradientIndex": 2}, "accentIndex": 1}
+]

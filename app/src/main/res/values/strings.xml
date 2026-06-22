@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Template</string>
+    <!-- Override components library label "typing…" → "печатает" -->
+    <string name="chat_list_typing_label">печатает</string>
+</resources>

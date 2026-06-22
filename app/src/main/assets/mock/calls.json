@@ -1,0 +1,33 @@
+[
+  {"id": "call-1", "type": "Incoming", "counterpartId": "u-01", "counterpartName": "Мария Климова",
+   "counterpartAvatar": {"type": "Person", "initials": "МК", "gradientIndex": 1, "imageAsset": "images/avatar_01.png"},
+   "isVideo": false, "isGroupCall": false, "timestamp": 1781015520000, "durationMs": 1440000},
+
+  {"id": "call-2", "type": "Outgoing", "counterpartId": "u-04", "counterpartName": "Софья Баженова",
+   "counterpartAvatar": {"type": "Person", "initials": "СБ", "gradientIndex": 4, "imageAsset": "images/avatar_04.png"},
+   "isVideo": false, "isGroupCall": false, "timestamp": 1781012700000, "durationMs": 720000},
+
+  {"id": "call-3", "type": "Missed", "counterpartId": "u-05", "counterpartName": "Анна Ковалёва",
+   "counterpartAvatar": {"type": "Person", "initials": "АК", "gradientIndex": 5, "imageAsset": "images/avatar_05.png"},
+   "isVideo": false, "isGroupCall": false, "timestamp": 1781012400000},
+
+  {"id": "call-4", "type": "Incoming", "counterpartId": "u-08", "counterpartName": "Алексей Гурин",
+   "counterpartAvatar": {"type": "Person", "initials": "АГ", "gradientIndex": 8, "imageAsset": "images/avatar_08.png"},
+   "isVideo": false, "isGroupCall": false, "timestamp": 1781003520000, "durationMs": 1440000},
+
+  {"id": "call-5", "type": "Incoming", "counterpartId": "u-12", "counterpartName": "Александр Иванов",
+   "counterpartAvatar": {"type": "Person", "initials": "АИ", "gradientIndex": 6},
+   "isVideo": false, "isGroupCall": false, "timestamp": 1780910400000, "durationMs": 1440000},
+
+  {"id": "call-6", "type": "Missed", "counterpartId": "u-09", "counterpartName": "Павел Сердюков",
+   "counterpartAvatar": {"type": "Person", "initials": "ПС", "gradientIndex": 9, "imageAsset": "images/avatar_09.png"},
+   "isVideo": false, "isGroupCall": false, "timestamp": 1780904700000},
+
+  {"id": "call-7", "type": "Incoming", "counterpartId": "u-02", "counterpartName": "Виктория Нечаева",
+   "counterpartAvatar": {"type": "Person", "initials": "ВН", "gradientIndex": 2, "imageAsset": "images/avatar_02.png"},
+   "isVideo": false, "isGroupCall": false, "timestamp": 1780903440000, "durationMs": 600000},
+
+  {"id": "call-8", "type": "Outgoing", "counterpartId": "u-06", "counterpartName": "Дарья Лапшина",
+   "counterpartAvatar": {"type": "Person", "initials": "ДЛ", "gradientIndex": 6, "imageAsset": "images/avatar_06.png"},
+   "isVideo": false, "isGroupCall": false, "timestamp": 1780898880000, "durationMs": 600000}
+]

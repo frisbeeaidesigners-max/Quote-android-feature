@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Фон adaptive icon. Один цвет на все бренды (как договорились). -->
+    <color name="ic_launcher_background">#1A1A1A</color>
+    <!-- Фон splash window'а (theme: windowBackground). Тёмный независимо от night-mode —
+         splash тематически едино-тёмный по требованию. -->
+    <color name="splash_background">#1A1A1A</color>
+</resources>

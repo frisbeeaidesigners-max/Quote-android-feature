@@ -1,0 +1,18 @@
+.gradle/
+build/
+local.properties
+.claude/settings.local.json
+*.iml
+.idea/
+captures/
+.cxx/
+# Icons synced from ../icons-library at build time via :app:syncIconsFromLibrary
+app/src/main/assets/icons/
+# Images synced from ../android-components at build time via :app:syncImagesFromComponents
+app/src/main/assets/images/
+# SVG patterns synced from ../android-components at build time via :app:syncPatternsFromComponents
+app/src/main/assets/patterns/
+# Stickers synced from ../android-components at build time via :app:syncStickersFromComponents
+app/src/main/assets/stickers/
+# Animated WebP/GIFs synced from ../android-components at build time via :app:syncGifsFromComponents
+app/src/main/assets/gifs/
