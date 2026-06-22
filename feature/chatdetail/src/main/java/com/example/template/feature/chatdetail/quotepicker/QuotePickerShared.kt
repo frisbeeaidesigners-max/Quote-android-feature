@@ -194,6 +194,7 @@ internal fun PreviewArea(
     onConfirm: (Int, Int) -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    bottomSpacerDp: Dp = 16.dp,
 ) {
     val brand = LocalAppBrand.current
     val isDark = LocalIsDark.current
@@ -269,7 +270,7 @@ internal fun PreviewArea(
                 previewMenuClipRect = previewMenuClipRect.value,
                 previewScrollInProgress = scrollState.isScrollInProgress,
             )
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(bottomSpacerDp))
         }
     }
 }

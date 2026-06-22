@@ -4,7 +4,9 @@ import android.graphics.Bitmap
 import android.widget.TextView
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -13,7 +15,10 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -50,6 +56,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.components.designsystem.DSTypography
 import com.example.components.designsystem.toComposeTextStyle
 import com.example.components.headers.HeadersView
@@ -60,6 +67,7 @@ import com.example.template.core.ui.LocalIsDark
 import com.example.template.core.ui.appBasic
 import com.example.template.core.ui.appClickable
 import com.example.template.core.ui.appSurface01
+import com.example.template.core.ui.appSurface02
 import com.example.template.core.ui.hosts.HeaderHost
 
 @Composable
@@ -161,6 +169,19 @@ fun QuoteV5FullScreenContent(
             )
         }
 
+        // Бабл едет вверх синхронно с открытием popover'а. Closed → 16dp (V4-дефолт).
+        // Open → menu_height + 20dp (96dp у 2-строчного state'а, 48dp у MINIMAL).
+        val targetBubbleBottomDp = when {
+            !popoverOpen -> 16.dp
+            menuState == QuoteMenuState.INITIAL_MINIMAL -> 68.dp
+            else -> 116.dp
+        }
+        val animatedBubbleBottomDp by animateDpAsState(
+            targetValue = targetBubbleBottomDp,
+            animationSpec = tween(220, easing = FastOutSlowInEasing),
+            label = "v5BubbleBottomInset",
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -196,6 +217,7 @@ fun QuoteV5FullScreenContent(
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
                 modifier = Modifier.fillMaxSize(),
+                bottomSpacerDp = animatedBubbleBottomDp,
             )
             val callbacks = MenuCallbacks(
                 onSelectFragment = {
@@ -237,7 +259,13 @@ fun QuoteV5FullScreenContent(
                 PopoverCard(state = menuState, callbacks = callbacks)
             }
         }
-        val senderName = remember(senderPersona) { senderPersona?.fullName.orEmpty() }
+        // Зеркалим ChatDetailViewModel.resolveAuthorName: "Вы" для своих сообщений (у меня
+        // самого нет записи в personaForUser, поэтому без явной ветки senderPersona = null →
+        // sender пропадал из reply-секции), иначе persona.fullName или "Собеседник".
+        val senderName = remember(isMine, senderPersona) {
+            if (isMine) "Вы"
+            else senderPersona?.fullName?.takeIf { it.isNotEmpty() } ?: "Собеседник"
+        }
         val previewText = remember(message) { replyPreviewText(message) }
         BottomStrip(
             senderName = senderName,
@@ -258,8 +286,7 @@ private fun PopoverCard(
         modifier = Modifier
             .width(250.dp)
             .clip(RoundedCornerShape(14.dp))
-            .background(appBasic(isDark, 0.08f))
-            .padding(vertical = 2.dp),
+            .background(appSurface02(isDark)),
     ) {
         AnimatedContent(
             targetState = state,
@@ -268,18 +295,15 @@ private fun PopoverCard(
                 (slideInHorizontally(tween(220, easing = FastOutSlowInEasing)) { it * dir } +
                     fadeIn(tween(120))) togetherWith
                     (slideOutHorizontally(tween(220, easing = FastOutSlowInEasing)) { -it * dir } +
-                        fadeOut(tween(120)))
+                        fadeOut(tween(120))) using
+                    SizeTransform(clip = false) { _, _ -> tween(220, easing = FastOutSlowInEasing) }
             },
             label = "V5PopoverFsm",
         ) { current ->
             val items = itemsForState(current, callbacks)
             Column(modifier = Modifier.fillMaxWidth()) {
                 items.forEachIndexed { i, item ->
-                    FullScreenMenuRow(
-                        item = item,
-                        paddingStart = 16.dp,
-                        paddingEnd = 16.dp,
-                    )
+                    PopoverMenuItem(item)
                     if (i < items.lastIndex) {
                         HorizontalDivider(
                             thickness = 0.5.dp,
@@ -289,6 +313,46 @@ private fun PopoverCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PopoverMenuItem(item: FullScreenMenuItemSpec) {
+    val isDark = LocalIsDark.current
+    val labelColor =
+        if (item.isDanger) Color(0xFFE06141)
+        else appBasic(isDark, 0.9f)
+    val iconColor =
+        if (item.isDanger) Color(0xFFE06141)
+        else appBasic(isDark, 0.55f)
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val itemBg = if (isPressed) appBasic(isDark, 0.08f) else Color.Transparent
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .background(itemBg)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = item.onClick,
+            )
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = item.label,
+            color = labelColor,
+            fontSize = 15.sp,
+            lineHeight = 20.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.width(180.dp),
+        )
+        DsIconImage(name = item.iconName, tint = iconColor, sizeDp = 24)
     }
 }
 
@@ -314,44 +378,45 @@ private fun BottomStrip(
                     strokeWidth = 1.dp.toPx(),
                 )
             }
-            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp)
+            .appClickable(onClick = onIconClick)
+            // end=8dp канон MessagePanel'а (там это компенсация под close-кнопку). У нас
+            // close-кнопки нет, но строгое соответствие важнее небольшой визуальной асимметрии.
+            .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
             .heightIn(min = 40.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // Icon container строго 24dp (как в MessagePanel), 36dp active-circle вешается
+        // overflow'ом через requiredSize — не влияет на layout, иначе text уезжал на +12dp.
         Box(
-            modifier = Modifier
-                .size(36.dp)
-                .appClickable(onClick = onIconClick),
+            modifier = Modifier.size(24.dp),
             contentAlignment = Alignment.Center,
         ) {
             if (popoverOpen) {
                 Box(
                     modifier = Modifier
-                        .size(36.dp)
+                        .requiredSize(36.dp)
                         .clip(CircleShape)
                         .background(appBasic(isDark, 0.08f)),
                 )
             }
-            DsIconImage(name = "reply-setting-n", tint = appBasic(isDark, 0.55f), sizeDp = 24)
+            DsIconImage(name = "reply-setting", tint = appBasic(isDark, 0.55f), sizeDp = 24)
         }
         Column(
             modifier = Modifier
                 .weight(1f)
                 .widthIn(min = 0.dp),
         ) {
-            if (senderName.isNotEmpty()) {
-                Text(
-                    text = senderName,
-                    style = DSTypography.subhead4M.toComposeTextStyle(),
-                    color = Color(brand.accentColor(isDark)),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+            Text(
+                text = senderName,
+                style = DSTypography.body4M.toComposeTextStyle(),
+                color = Color(brand.accentColor(isDark)),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
             Text(
                 text = previewText,
-                style = DSTypography.subhead2R.toComposeTextStyle(),
+                style = DSTypography.body5R.toComposeTextStyle(),
                 color = appBasic(isDark, 0.5f),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

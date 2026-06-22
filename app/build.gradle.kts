@@ -32,8 +32,8 @@ android {
 }
 
 val syncIconsFromLibrary = tasks.register<Copy>("syncIconsFromLibrary") {
-    description = "Copies SVG icons from ../../icons-library/icons into app assets so DSIcon can resolve them"
-    from(file("${rootDir}/../icons-library/icons")) {
+    description = "Copies SVG icons from ../IconsAndColorsLibrary-cross-template/icons into app assets so DSIcon can resolve them"
+    from(file("${rootDir}/../IconsAndColorsLibrary-cross-template/icons")) {
         include("*.svg")
     }
     into(layout.projectDirectory.dir("src/main/assets/icons"))
