@@ -4,15 +4,20 @@ import android.graphics.Bitmap
 import android.widget.TextView
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -24,14 +29,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.components.designsystem.DSTypography
 import com.example.components.designsystem.toComposeTextStyle
 import com.example.components.headers.HeadersView
 import com.example.template.core.model.Message
 import com.example.template.core.model.Persona
+import com.example.template.core.ui.LocalAppBrand
 import com.example.template.core.ui.LocalIsDark
 import com.example.template.core.ui.appBasic
+import com.example.template.core.ui.appClickable
 import com.example.template.core.ui.appSurface01
 import com.example.template.core.ui.hosts.HeaderHost
 
@@ -75,6 +87,9 @@ fun QuoteV5FullScreenContent(
         clearSelectionRef.value?.invoke()
         onDismiss()
     }
+
+    // Popover-state — initial OPEN. Полная open/close-логика — Task 11.
+    var popoverOpen by rememberSaveable { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
@@ -158,6 +173,85 @@ fun QuoteV5FullScreenContent(
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
                 modifier = Modifier.fillMaxSize(),
+            )
+        }
+        val senderName = remember(senderPersona) {
+            buildString {
+                append(senderPersona?.firstName.orEmpty())
+                senderPersona?.lastName?.takeIf { it.isNotEmpty() }?.let { append(' '); append(it) }
+            }.trim()
+        }
+        val previewText = remember(message) { replyPreviewText(message) }
+        BottomStrip(
+            senderName = senderName,
+            previewText = previewText,
+            popoverOpen = popoverOpen,
+            onIconClick = { popoverOpen = !popoverOpen },
+        )
+    }
+}
+
+@Composable
+private fun BottomStrip(
+    senderName: String,
+    previewText: String,
+    popoverOpen: Boolean,
+    onIconClick: () -> Unit,
+) {
+    val brand = LocalAppBrand.current
+    val isDark = LocalIsDark.current
+    val borderColor = appBasic(isDark, 0.08f)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(appSurface01(isDark))
+            .drawBehind {
+                drawLine(
+                    color = borderColor,
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, 0f),
+                    strokeWidth = 1.dp.toPx(),
+                )
+            }
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 4.dp)
+            .heightIn(min = 40.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .appClickable(onClick = onIconClick),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (popoverOpen) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(appBasic(isDark, 0.08f)),
+                )
+            }
+            DsIconImage(name = "reply-setting-n", tint = appBasic(isDark, 0.55f), sizeDp = 24)
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .widthIn(min = 0.dp),
+        ) {
+            Text(
+                text = senderName,
+                style = DSTypography.subhead4M.toComposeTextStyle(),
+                color = Color(brand.accentColor(isDark)),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = previewText,
+                style = DSTypography.subhead2R.toComposeTextStyle(),
+                color = appBasic(isDark, 0.5f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
