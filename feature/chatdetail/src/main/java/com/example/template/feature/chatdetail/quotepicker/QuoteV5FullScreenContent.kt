@@ -66,7 +66,6 @@ import com.example.template.core.model.Persona
 import com.example.template.core.ui.LocalAppBrand
 import com.example.template.core.ui.LocalIsDark
 import com.example.template.core.ui.appBasic
-import com.example.template.core.ui.appClickable
 import com.example.template.core.ui.appSurface01
 import com.example.template.core.ui.appSurface02
 import com.example.template.core.ui.hosts.HeaderHost
@@ -382,6 +381,7 @@ private fun BottomStrip(
     val brand = LocalAppBrand.current
     val isDark = LocalIsDark.current
     val borderColor = appBasic(isDark, 0.08f)
+    val stripInteractionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -394,7 +394,14 @@ private fun BottomStrip(
                     strokeWidth = 1.dp.toPx(),
                 )
             }
-            .appClickable(onClick = onIconClick)
+            // Тап по всей секции toggling popover, но БЕЗ ripple-эффекта —
+            // indication = null. interactionSource нужен в сигнатуре clickable, но мы
+            // его никому не показываем.
+            .clickable(
+                interactionSource = stripInteractionSource,
+                indication = null,
+                onClick = onIconClick,
+            )
             // end=8dp канон MessagePanel'а (там это компенсация под close-кнопку). У нас
             // close-кнопки нет, но строгое соответствие важнее небольшой визуальной асимметрии.
             .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
