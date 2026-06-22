@@ -3,7 +3,18 @@ package com.example.template.feature.chatdetail.quotepicker
 import android.graphics.Bitmap
 import android.widget.TextView
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,10 +27,14 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.components.designsystem.DSTypography
@@ -88,8 +104,11 @@ fun QuoteV5FullScreenContent(
         onDismiss()
     }
 
-    // Popover-state — initial OPEN. Полная open/close-логика — Task 11.
     var popoverOpen by rememberSaveable { mutableStateOf(true) }
+
+    LaunchedEffect(menuState) {
+        if (menuState == QuoteMenuState.SELECTING) popoverOpen = true
+    }
 
     Column(
         modifier = Modifier
@@ -146,7 +165,12 @@ fun QuoteV5FullScreenContent(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
+                .weight(1f)
+                .pointerInput(popoverOpen) {
+                    if (popoverOpen) {
+                        detectTapGestures(onTap = { popoverOpen = false })
+                    }
+                },
         ) {
             PreviewArea(
                 message = message,
@@ -174,6 +198,45 @@ fun QuoteV5FullScreenContent(
                 onDismiss = onDismiss,
                 modifier = Modifier.fillMaxSize(),
             )
+            val callbacks = MenuCallbacks(
+                onSelectFragment = {
+                    selectAllRef.value?.invoke()
+                    menuState = QuoteMenuState.SELECTING
+                },
+                onApply = {
+                    val range = selectionRef.value?.invoke()
+                    clearSelectionRef.value?.invoke()
+                    onConfirm(range?.first ?: 0, range?.last ?: 0)
+                },
+                onCancelReply = {
+                    clearSelectionRef.value?.invoke()
+                    onCancelReply()
+                },
+                onBack = {
+                    clearSelectionRef.value?.invoke()
+                    menuState = QuoteMenuState.INITIAL
+                },
+                onConfirmQuote = {
+                    val range = selectionRef.value?.invoke()
+                    clearSelectionRef.value?.invoke()
+                    onConfirm(range?.first ?: 0, range?.last ?: 0)
+                },
+                onClearQuote = {
+                    clearSelectionRef.value?.invoke()
+                    menuState = QuoteMenuState.INITIAL
+                },
+            )
+            androidx.compose.animation.AnimatedVisibility(
+                visible = popoverOpen,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 8.dp, bottom = 8.dp),
+                enter = fadeIn(tween(150)) +
+                    slideInVertically(tween(220, easing = FastOutSlowInEasing)) { it / 4 },
+                exit = fadeOut(tween(120)),
+            ) {
+                PopoverCard(state = menuState, callbacks = callbacks)
+            }
         }
         val senderName = remember(senderPersona) {
             buildString {
@@ -188,6 +251,50 @@ fun QuoteV5FullScreenContent(
             popoverOpen = popoverOpen,
             onIconClick = { popoverOpen = !popoverOpen },
         )
+    }
+}
+
+@Composable
+private fun PopoverCard(
+    state: QuoteMenuState,
+    callbacks: MenuCallbacks,
+) {
+    val isDark = LocalIsDark.current
+    Box(
+        modifier = Modifier
+            .width(250.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(appBasic(isDark, 0.08f))
+            .padding(vertical = 2.dp),
+    ) {
+        AnimatedContent(
+            targetState = state,
+            transitionSpec = {
+                val dir = if (targetState.ordinal > initialState.ordinal) 1 else -1
+                (slideInHorizontally(tween(220, easing = FastOutSlowInEasing)) { it * dir } +
+                    fadeIn(tween(120))) togetherWith
+                    (slideOutHorizontally(tween(220, easing = FastOutSlowInEasing)) { -it * dir } +
+                        fadeOut(tween(120)))
+            },
+            label = "V5PopoverFsm",
+        ) { current ->
+            val items = itemsForState(current, callbacks)
+            Column(modifier = Modifier.fillMaxWidth()) {
+                items.forEachIndexed { i, item ->
+                    FullScreenMenuRow(
+                        item = item,
+                        paddingStart = 16.dp,
+                        paddingEnd = 16.dp,
+                    )
+                    if (i < items.lastIndex) {
+                        HorizontalDivider(
+                            thickness = 0.5.dp,
+                            color = appBasic(isDark, 0.08f),
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
