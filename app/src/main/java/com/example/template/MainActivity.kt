@@ -342,7 +342,10 @@ class MainActivity : ComponentActivity() {
                                     val senderAvatar = remember(senderPersona?.avatarAsset, cacheVersion) {
                                         senderPersona?.avatarAsset?.let { container.bitmapCache.get(it) }
                                     }
+                                    val variantFlow = LocalQuotePickerVariant.current
+                                    val variant by variantFlow.collectAsState()
                                     QuotePickerFullScreen(
+                                        variant = variant,
                                         message = originalMessage,
                                         senderPersona = senderPersona,
                                         senderAvatar = senderAvatar,

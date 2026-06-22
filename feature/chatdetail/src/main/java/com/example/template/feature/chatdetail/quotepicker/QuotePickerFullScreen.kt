@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import com.example.template.core.model.Message
 import com.example.template.core.model.Persona
+import com.example.template.core.ui.QuotePickerVariant
 
 /**
  * V3 (Fullscreen) quote picker. Рендерится как inline Compose-overlay в MainActivity ВНЕ
@@ -23,6 +24,7 @@ import com.example.template.core.model.Persona
  */
 @Composable
 fun QuotePickerFullScreen(
+    variant: QuotePickerVariant,
     message: Message,
     senderPersona: Persona?,
     senderAvatar: Bitmap?,
@@ -33,17 +35,30 @@ fun QuotePickerFullScreen(
     onDismiss: () -> Unit,
     onCancelReply: () -> Unit,
 ) {
-    // BackHandler установлен ВНУТРИ QuoteFullScreenContent — он имеет доступ к
-    // clearSelectionRef и чистит подвешенные selection-handle'ы до onDismiss.
-    QuoteFullScreenContent(
-        message = message,
-        senderPersona = senderPersona,
-        senderAvatar = senderAvatar,
-        isMine = isMine,
-        initialStart = initialStart,
-        initialEnd = initialEnd,
-        onConfirm = onConfirm,
-        onDismiss = onDismiss,
-        onCancelReply = onCancelReply,
-    )
+    // BackHandler установлен ВНУТРИ контента (QuoteFullScreenContent / QuoteV5FullScreenContent) —
+    // он имеет доступ к clearSelectionRef для синхронного дисмисса handle-popup'ов.
+    when (variant) {
+        QuotePickerVariant.V4 -> QuoteFullScreenContent(
+            message = message,
+            senderPersona = senderPersona,
+            senderAvatar = senderAvatar,
+            isMine = isMine,
+            initialStart = initialStart,
+            initialEnd = initialEnd,
+            onConfirm = onConfirm,
+            onDismiss = onDismiss,
+            onCancelReply = onCancelReply,
+        )
+        QuotePickerVariant.V5 -> QuoteV5FullScreenContent(
+            message = message,
+            senderPersona = senderPersona,
+            senderAvatar = senderAvatar,
+            isMine = isMine,
+            initialStart = initialStart,
+            initialEnd = initialEnd,
+            onConfirm = onConfirm,
+            onDismiss = onDismiss,
+            onCancelReply = onCancelReply,
+        )
+    }
 }
