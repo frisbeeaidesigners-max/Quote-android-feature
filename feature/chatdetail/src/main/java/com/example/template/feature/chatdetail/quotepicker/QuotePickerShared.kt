@@ -102,7 +102,7 @@ internal fun replyPreviewText(message: Message): String = when (message) {
     is Message.Voice -> "Голосовое сообщение"
     is Message.Link -> message.url
     is Message.CallMeet -> "Звонок"
-    is Message.System -> ""
+    is Message.System -> "Системное сообщение"
 }
 
 // Bundled Roboto TTF из :components — на MIUI FontWeight.Medium без явного font fallback'ится

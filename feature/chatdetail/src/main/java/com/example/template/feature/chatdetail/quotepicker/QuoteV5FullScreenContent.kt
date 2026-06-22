@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.widget.TextView
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -238,12 +237,7 @@ fun QuoteV5FullScreenContent(
                 PopoverCard(state = menuState, callbacks = callbacks)
             }
         }
-        val senderName = remember(senderPersona) {
-            buildString {
-                append(senderPersona?.firstName.orEmpty())
-                senderPersona?.lastName?.takeIf { it.isNotEmpty() }?.let { append(' '); append(it) }
-            }.trim()
-        }
+        val senderName = remember(senderPersona) { senderPersona?.fullName.orEmpty() }
         val previewText = remember(message) { replyPreviewText(message) }
         BottomStrip(
             senderName = senderName,
@@ -346,13 +340,15 @@ private fun BottomStrip(
                 .weight(1f)
                 .widthIn(min = 0.dp),
         ) {
-            Text(
-                text = senderName,
-                style = DSTypography.subhead4M.toComposeTextStyle(),
-                color = Color(brand.accentColor(isDark)),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            if (senderName.isNotEmpty()) {
+                Text(
+                    text = senderName,
+                    style = DSTypography.subhead4M.toComposeTextStyle(),
+                    color = Color(brand.accentColor(isDark)),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
             Text(
                 text = previewText,
                 style = DSTypography.subhead2R.toComposeTextStyle(),
