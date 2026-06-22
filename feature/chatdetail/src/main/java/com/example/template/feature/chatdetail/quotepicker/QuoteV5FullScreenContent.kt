@@ -128,6 +128,37 @@ fun QuoteV5FullScreenContent(
             )
         }
 
-        Box(modifier = Modifier.fillMaxWidth().weight(1f))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+        ) {
+            PreviewArea(
+                message = message,
+                senderPersona = senderPersona,
+                senderAvatar = senderAvatar,
+                isMine = isMine,
+                initialStart = initialStart,
+                initialEnd = initialEnd,
+                tvRef = tvRef,
+                selectAllRef = selectAllRef,
+                selectionRef = selectionRef,
+                clearSelectionRef = clearSelectionRef,
+                onSelectionStart = {
+                    if (menuState != QuoteMenuState.SELECTING) {
+                        menuState = QuoteMenuState.SELECTING
+                    }
+                },
+                onSelectionEnd = {
+                    if (menuState == QuoteMenuState.SELECTING) {
+                        menuState = if (initialStart < initialEnd) QuoteMenuState.INITIAL_WITH_QUOTE
+                        else QuoteMenuState.INITIAL
+                    }
+                },
+                onConfirm = onConfirm,
+                onDismiss = onDismiss,
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
     }
 }
