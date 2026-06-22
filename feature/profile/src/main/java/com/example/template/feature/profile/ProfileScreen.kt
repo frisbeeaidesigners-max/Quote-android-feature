@@ -25,6 +25,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,6 +55,8 @@ import com.example.template.core.ui.AppVersion
 import com.example.template.core.ui.LocalAppBrand
 import com.example.template.core.ui.LocalBitmapCache
 import com.example.template.core.ui.LocalIsDark
+import com.example.template.core.ui.LocalQuotePickerVariant
+import com.example.template.core.ui.QuotePickerVariant
 import com.example.template.core.ui.appBasic
 import com.example.template.core.ui.hosts.ButtonHost
 import com.example.template.core.ui.theme.avatarColorSchemeForGradient
@@ -241,6 +244,33 @@ fun ProfileScreen(viewModel: ProfileViewModel, onClose: () -> Unit = {}, onEdit:
                         isDark = isDark,
                         textColor = Color(0xFFE06141),
                     )
+                }
+
+                ProfileCard(groupBg) {
+                    val variantFlow = LocalQuotePickerVariant.current
+                    val variant by variantFlow.collectAsState()
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .defaultMinSize(minHeight = 48.dp)
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "Полноэкранный пикер V5",
+                            style = DSTypography.body1R.toComposeTextStyle(),
+                            color = appBasic(isDark, 0.9f),
+                            modifier = Modifier.weight(1f),
+                        )
+                        Switch(
+                            checked = variant == QuotePickerVariant.V5,
+                            onCheckedChange = {
+                                variantFlow.value =
+                                    if (it) QuotePickerVariant.V5 else QuotePickerVariant.V4
+                            },
+                        )
+                    }
                 }
 
                 ProfileCard(groupBg) {
