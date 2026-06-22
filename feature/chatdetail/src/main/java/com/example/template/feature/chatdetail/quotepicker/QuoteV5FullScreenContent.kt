@@ -7,6 +7,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -176,11 +177,25 @@ fun QuoteV5FullScreenContent(
             menuState == QuoteMenuState.INITIAL_MINIMAL -> 68.dp
             else -> 116.dp
         }
+        // В SELECTING — snap вместо tween'а. Bubble shift каждый кадр через Compose-layout
+        // не успевает протолкнуть recalc через Editor.SelectionController'у — handles
+        // (PopupWindow'ы) отстают. Один snap → один layout-pass → handles re-position
+        // в тот же кадр, синхронно. В остальных state'ах selection нет, плавный tween OK.
         val animatedBubbleBottomDp by animateDpAsState(
             targetValue = targetBubbleBottomDp,
-            animationSpec = tween(220, easing = FastOutSlowInEasing),
+            animationSpec = if (menuState == QuoteMenuState.SELECTING) snap()
+                else tween(220, easing = FastOutSlowInEasing),
             label = "v5BubbleBottomInset",
         )
+
+        // Inset для clip-rect'ов action-bar'а / handles. Popover занимает 8dp (bottom anchor)
+        // + popoverHeight + 8dp (gap до клипа). Native Editor пристёгивает floating-bar
+        // и handles выше bottomMenu — не залезают в popover-зону при scroll'е длинного бабла.
+        val menuClipBottomInsetDp = when {
+            !popoverOpen -> 0.dp
+            menuState == QuoteMenuState.INITIAL_MINIMAL -> 64.dp   // 8 + 48 + 8
+            else -> 112.dp                                          // 8 + 96 + 8
+        }
 
         Box(
             modifier = Modifier
@@ -218,6 +233,7 @@ fun QuoteV5FullScreenContent(
                 onDismiss = onDismiss,
                 modifier = Modifier.fillMaxSize(),
                 bottomSpacerDp = animatedBubbleBottomDp,
+                menuClipBottomInsetDp = menuClipBottomInsetDp,
             )
             val callbacks = MenuCallbacks(
                 onSelectFragment = {

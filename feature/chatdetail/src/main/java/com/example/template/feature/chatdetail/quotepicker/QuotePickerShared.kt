@@ -195,6 +195,11 @@ internal fun PreviewArea(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     bottomSpacerDp: Dp = 16.dp,
+    // Дополнительный inset снизу для clip-rect'ов handle/floating-menu. V5 передаёт
+    // popoverHeight+margins когда popover открыт, чтобы native action-bar и handles
+    // не залезали в зону popover'а (Editor использует эти rect'ы при позиционировании
+    // PopupWindow'ов). V4 не использует — дефолт 0.dp.
+    menuClipBottomInsetDp: Dp = 0.dp,
 ) {
     val brand = LocalAppBrand.current
     val isDark = LocalIsDark.current
@@ -209,6 +214,22 @@ internal fun PreviewArea(
     val previewMenuClipRect = remember { mutableStateOf<android.graphics.Rect?>(null) }
     val density = LocalDensity.current
     val handleOverflowPx = with(density) { 24.dp.roundToPx() }
+    val menuClipInsetPx = with(density) { menuClipBottomInsetDp.roundToPx() }
+    // Геометрия Box'а (positionInWindow + size) кэшируется отдельно, чтобы clip-rect'ы
+    // пересчитывались и при изменении внешнего menuClipInsetPx (popoverOpen flip),
+    // а не только при re-layout. onGloballyPositioned бы один не справился.
+    val previewBounds = remember { mutableStateOf<android.graphics.Rect?>(null) }
+
+    LaunchedEffect(previewBounds.value, menuClipInsetPx, handleOverflowPx) {
+        val b = previewBounds.value ?: return@LaunchedEffect
+        val bottomMenu = b.bottom - menuClipInsetPx
+        val bottomHandle = (b.bottom + handleOverflowPx - menuClipInsetPx)
+            .coerceAtLeast(bottomMenu)
+        val menuR = android.graphics.Rect(b.left, b.top, b.right, bottomMenu)
+        val handleR = android.graphics.Rect(b.left, b.top, b.right, bottomHandle)
+        if (previewMenuClipRect.value != menuR) previewMenuClipRect.value = menuR
+        if (previewHandleClipRect.value != handleR) previewHandleClipRect.value = handleR
+    }
 
     Box(
         modifier = modifier
@@ -216,12 +237,13 @@ internal fun PreviewArea(
             .onGloballyPositioned { coords ->
                 val pos = coords.positionInWindow()
                 val size = coords.size
-                val x = pos.x.toInt()
-                val y = pos.y.toInt()
-                val menuR = android.graphics.Rect(x, y, x + size.width, y + size.height)
-                val handleR = android.graphics.Rect(x, y, x + size.width, y + size.height + handleOverflowPx)
-                if (previewMenuClipRect.value != menuR) previewMenuClipRect.value = menuR
-                if (previewHandleClipRect.value != handleR) previewHandleClipRect.value = handleR
+                val rect = android.graphics.Rect(
+                    pos.x.toInt(),
+                    pos.y.toInt(),
+                    pos.x.toInt() + size.width,
+                    pos.y.toInt() + size.height,
+                )
+                if (previewBounds.value != rect) previewBounds.value = rect
             },
     ) {
         AndroidView(
