@@ -768,7 +768,7 @@ private fun LinkBubbleOverlay(
                         title = "Google Meet",
                         description = "Видеовстреча для обсуждения задач и обмена ключевыми обновлениями по текущему проекту",
                         url = "https://meet.google.com/dvz-prtb-xyk",
-                        domain = "",
+                        domain = "meet.google.com",
                         labels = null,
                         time = "10:15",
                         sendingState = LinkBubbleView.SendingState.READ,
