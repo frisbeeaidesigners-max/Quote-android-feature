@@ -195,6 +195,8 @@ internal fun PreviewArea(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     bottomSpacerDp: Dp = 16.dp,
+    // Опциональный ref — V5 picker заполняет, V4 не нуждается.
+    restoreSelectionRef: MutableState<((Int, Int) -> Unit)?>? = null,
     // Дополнительный inset снизу для clip-rect'ов handle/floating-menu. V5 передаёт
     // popoverHeight+margins когда popover открыт, чтобы native action-bar и handles
     // не залезали в зону popover'а (Editor использует эти rect'ы при позиционировании
@@ -282,6 +284,7 @@ internal fun PreviewArea(
                 selectAllRef = selectAllRef,
                 selectionRef = selectionRef,
                 clearSelectionRef = clearSelectionRef,
+                restoreSelectionRef = restoreSelectionRef,
                 onSelectionStart = onSelectionStart,
                 onSelectionEnd = onSelectionEnd,
                 onCopyFromActionMode = onDismiss,

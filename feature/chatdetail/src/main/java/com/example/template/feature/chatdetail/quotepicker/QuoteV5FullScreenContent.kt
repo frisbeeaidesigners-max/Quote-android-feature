@@ -114,6 +114,9 @@ fun QuoteV5FullScreenContent(
     val selectAllRef = remember { mutableStateOf<(() -> Unit)?>(null) }
     val selectionRef = remember { mutableStateOf<(() -> IntRange?)?>(null) }
     val clearSelectionRef = remember { mutableStateOf<(() -> Unit)?>(null) }
+    // V5-only: на возврат с вкладки «Ссылка» восстанавливаем подсветку фрагмента
+    // (range берётся из snapshotRange). См. LaunchedEffect(selectedTab) ниже.
+    val restoreSelectionRef = remember { mutableStateOf<((Int, Int) -> Unit)?>(null) }
 
     BackHandler {
         clearSelectionRef.value?.invoke()
@@ -151,7 +154,13 @@ fun QuoteV5FullScreenContent(
         }
     }
 
+    // Трекаем переход «1 → 0» для restore selection. На initial composition с
+    // selectedTab=0 эффект тоже фирится, но previousTab совпадает → restore не вызываем
+    // (factory PreviewArea сам инициирует подсветку через initialStart/initialEnd).
+    val previousTab = remember { mutableStateOf(selectedTab) }
     LaunchedEffect(selectedTab) {
+        val transitioning = previousTab.value != selectedTab
+        previousTab.value = selectedTab
         if (selectedTab == 1) {
             // Capture live selection range BEFORE clearing — when the user opens the
             // picker with no pre-existing quote and picks a fragment, the FSM never
@@ -172,6 +181,14 @@ fun QuoteV5FullScreenContent(
             }
             clearSelectionRef.value?.invoke()
             tvRef.value?.clearFocus()
+        } else if (transitioning) {
+            // На возврат с вкладки «Ссылка» восстанавливаем подсветку фрагмента из снапшота.
+            // Только на реальном переходе, чтобы не дёргать restore на initial composition'е
+            // (там factory PreviewArea сам обрабатывает initialStart/initialEnd).
+            val range = snapshotRange
+            if (range != null) {
+                restoreSelectionRef.value?.invoke(range.first, range.second)
+            }
         }
         // На любом переключении вкладок popover открыт (правило юзера) — и при входе
         // на «Ссылка», и при возврате на «Ответ».
@@ -288,6 +305,7 @@ fun QuoteV5FullScreenContent(
                 selectAllRef = selectAllRef,
                 selectionRef = selectionRef,
                 clearSelectionRef = clearSelectionRef,
+                restoreSelectionRef = restoreSelectionRef,
                 onSelectionStart = {
                     if (menuState != QuoteMenuState.SELECTING) {
                         menuState = QuoteMenuState.SELECTING

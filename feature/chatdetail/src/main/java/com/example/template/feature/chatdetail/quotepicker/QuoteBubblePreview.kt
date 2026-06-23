@@ -58,6 +58,11 @@ fun QuoteBubblePreview(
     selectAllRef: MutableState<(() -> Unit)?>,
     selectionRef: MutableState<(() -> IntRange?)?>,
     clearSelectionRef: MutableState<(() -> Unit)?>,
+    /** Программно восстанавливает selection range на bubble (используется V5-picker'ом
+     *  при возврате с вкладки «Ссылка» — там handles чистятся, snapshotRange сохранён,
+     *  на возврат хост вызывает эту лямбду чтобы юзер снова видел подсвеченный фрагмент).
+     *  Suppress'ит onSelectionStart внутри (изменение state'а инициирует хост). */
+    restoreSelectionRef: MutableState<((Int, Int) -> Unit)?>? = null,
     onSelectionStart: () -> Unit = {},
     /** Fires when selection becomes INACTIVE — e.g., after Copy tap clears the selection
      *  via the controller. Host uses this to roll the FSM back from SELECTING to INITIAL
@@ -220,6 +225,22 @@ fun QuoteBubblePreview(
                             suppressOnStart[0] = false
                         }
                     }
+                    restoreSelectionRef?.value = { s, e ->
+                        view.setMessageTextSelectable(
+                            selectable = true,
+                            menuItems = menuItems,
+                            highlightColor = highlightColor,
+                            handleTint = accentInt,
+                            menuBackgroundColor = menuBg,
+                            menuTextColor = menuText,
+                            menuRippleColor = menuRipple,
+                        )
+                        suppressOnStart[0] = true
+                        view.post {
+                            view.selectMessageTextRange(s, e)
+                            suppressOnStart[0] = false
+                        }
+                    }
                     view.setSelectionAutoScrollCallback(autoScrollCallback)
                     view.setSelectionClipRect(previewClipRect, previewMenuClipRect)
                     view.setSelectionMenuTemporarilyHidden(previewScrollInProgress)
@@ -343,6 +364,7 @@ fun QuoteBubblePreview(
                         selectionRef.value = null
                         clearSelectionRef.value = null
                         selectAllRef.value = null
+                        restoreSelectionRef?.value = null
                     }
                 },
             )
@@ -358,6 +380,7 @@ fun QuoteBubblePreview(
             selectAllRef.value = null
             selectionRef.value = null
             clearSelectionRef.value = null
+            restoreSelectionRef?.value = null
             val time = remember(message.timestamp) { TimeFormatter.formatBubbleTime(message.timestamp) }
             val totalDuration = remember(message.durationMs) {
                 TimeFormatter.formatVoiceDuration(message.durationMs)
