@@ -42,12 +42,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.viewinterop.AndroidView
+import com.example.components.segmentedcontrol.SegmentedControlView
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -83,6 +86,7 @@ fun QuoteV5FullScreenContent(
     onCancelReply: () -> Unit,
 ) {
     val isDark = LocalIsDark.current
+    val brand = LocalAppBrand.current
 
     // FSM init — то же правило, что у V4 (QuoteFullScreenContent.kt:87-100).
     val hasSelectableText = when (message) {
@@ -111,6 +115,7 @@ fun QuoteV5FullScreenContent(
         onDismiss()
     }
 
+    var selectedTab by rememberSaveable { mutableStateOf(0) } // 0 = Ответ, 1 = Ссылка
     var popoverOpen by rememberSaveable { mutableStateOf(true) }
 
     LaunchedEffect(menuState) {
@@ -134,10 +139,14 @@ fun QuoteV5FullScreenContent(
             clearSelectionRef.value?.invoke()
             onConfirm(range?.first ?: 0, range?.last ?: 0)
         })
-        val headerConfig = remember(menuState) {
-            val title = when (menuState) {
-                QuoteMenuState.INITIAL_WITH_QUOTE, QuoteMenuState.SELECTING -> "Ответ на цитату"
-                QuoteMenuState.INITIAL, QuoteMenuState.INITIAL_MINIMAL -> "Ответ на сообщение"
+        val headerConfig = remember(menuState, selectedTab) {
+            val title = if (selectedTab == 1) {
+                "Оформление ссылки"
+            } else {
+                when (menuState) {
+                    QuoteMenuState.INITIAL_WITH_QUOTE, QuoteMenuState.SELECTING -> "Ответ на цитату"
+                    QuoteMenuState.INITIAL, QuoteMenuState.INITIAL_MINIMAL -> "Ответ на сообщение"
+                }
             }
             HeadersView.HeaderConfig.Custom(
                 title = title,
@@ -162,7 +171,8 @@ fun QuoteV5FullScreenContent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Вы можете процитировать фрагмент сообщения",
+                text = if (selectedTab == 1) "Так будет выглядеть ваша ссылка после отправки"
+                       else "Вы можете процитировать фрагмент сообщения",
                 style = DSTypography.body1R.toComposeTextStyle(),
                 color = appBasic(isDark, 0.5f),
                 maxLines = 1,
@@ -273,6 +283,22 @@ fun QuoteV5FullScreenContent(
             ) {
                 PopoverCard(state = menuState, callbacks = callbacks)
             }
+            AndroidView(
+                factory = { ctx -> SegmentedControlView(ctx) },
+                update = { view ->
+                    view.configure(
+                        labels = listOf("Ответ", "Ссылка"),
+                        selectedIndex = selectedTab,
+                        onSelect = { selectedTab = it },
+                        colorScheme = brand.segmentedControlColorScheme(isDark),
+                    )
+                },
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 8.dp)
+                    .width(152.dp)
+                    .height(32.dp),
+            )
         }
         // Зеркалим ChatDetailViewModel.resolveAuthorName: "Вы" для своих сообщений (у меня
         // самого нет записи в personaForUser, поэтому без явной ветки senderPersona = null →
@@ -286,6 +312,7 @@ fun QuoteV5FullScreenContent(
             senderName = senderName,
             previewText = previewText,
             popoverOpen = popoverOpen,
+            menuState = menuState,
             onIconClick = { popoverOpen = !popoverOpen },
         )
     }
@@ -376,8 +403,13 @@ private fun BottomStrip(
     senderName: String,
     previewText: String,
     popoverOpen: Boolean,
+    menuState: QuoteMenuState,
     onIconClick: () -> Unit,
 ) {
+    val iconName = when (menuState) {
+        QuoteMenuState.INITIAL_WITH_QUOTE, QuoteMenuState.SELECTING -> "reply-quote"
+        QuoteMenuState.INITIAL, QuoteMenuState.INITIAL_MINIMAL -> "reply-setting"
+    }
     val brand = LocalAppBrand.current
     val isDark = LocalIsDark.current
     val borderColor = appBasic(isDark, 0.08f)
@@ -423,7 +455,7 @@ private fun BottomStrip(
                         .background(appBasic(isDark, 0.08f)),
                 )
             }
-            DsIconImage(name = "reply-setting", tint = appBasic(isDark, 0.55f), sizeDp = 24)
+            DsIconImage(name = iconName, tint = appBasic(isDark, 0.55f), sizeDp = 24)
         }
         Column(
             modifier = Modifier
