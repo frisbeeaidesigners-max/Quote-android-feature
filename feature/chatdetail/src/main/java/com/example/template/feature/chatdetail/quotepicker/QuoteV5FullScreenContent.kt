@@ -144,6 +144,15 @@ fun QuoteV5FullScreenContent(
 
     LaunchedEffect(selectedTab) {
         if (selectedTab == 1) {
+            // Capture live selection range BEFORE clearing — when the user opens the
+            // picker with no pre-existing quote and picks a fragment, the FSM never
+            // reaches INITIAL_WITH_QUOTE (onSelectionEnd uses initialStart/initialEnd),
+            // so snapshotRange would remain null and the LinkBubble reply block would
+            // show the full message instead of the fragment.
+            val live = selectionRef.value?.invoke()
+            if (live != null && live.first < live.last) {
+                snapshotRange = live.first to live.last
+            }
             clearSelectionRef.value?.invoke()
             popoverOpen = false
             tvRef.value?.clearFocus()
