@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.widget.TextView
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import com.example.components.backgroundpattern.BackgroundPatternView
 import com.example.components.bubbles.LinkBubbleView
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -60,6 +62,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.components.designsystem.DSTypography
@@ -118,6 +121,11 @@ fun QuoteV5FullScreenContent(
 
     var selectedTab by rememberSaveable { mutableStateOf(0) } // 0 = Ответ, 1 = Ссылка
     var popoverOpen by rememberSaveable { mutableStateOf(true) }
+    // Mock selection for Ссылка-tab popover (Общая информация / Главное сообщение).
+    // Содержимое reply-секции LinkBubble НЕ зависит от этого выбора (per spec — popover
+    // декоративный, реальной коммутации нет; единственное состояние, которое управляет
+    // reply-блоком, — snapshotRange с вкладки «Ответ»).
+    var linkPopoverSelection by rememberSaveable { mutableStateOf(0) }
 
     LaunchedEffect(menuState) {
         if (menuState == QuoteMenuState.SELECTING) popoverOpen = true
@@ -297,6 +305,7 @@ fun QuoteV5FullScreenContent(
                     senderPersona = senderPersona,
                     isMine = isMine,
                     snapshotRange = snapshotRange,
+                    bottomSpacerDp = animatedBubbleBottomDp,
                 )
             }
             val callbacks = MenuCallbacks(
@@ -346,24 +355,42 @@ fun QuoteV5FullScreenContent(
                     slideInVertically(tween(220, easing = FastOutSlowInEasing)) { it / 4 },
                 exit = fadeOut(tween(120)),
             ) {
-                PopoverCard(state = menuState, callbacks = callbacks)
-            }
-            AndroidView(
-                factory = { ctx -> SegmentedControlView(ctx) },
-                update = { view ->
-                    view.configure(
-                        labels = listOf("Ответ", "Ссылка"),
-                        selectedIndex = selectedTab,
-                        onSelect = { selectedTab = it },
-                        colorScheme = brand.segmentedControlColorScheme(isDark),
+                if (selectedTab == 1) {
+                    LinkPopoverCard(
+                        selectedIndex = linkPopoverSelection,
+                        onSelect = { i ->
+                            linkPopoverSelection = i
+                            popoverOpen = false
+                        },
                     )
-                },
+                } else {
+                    PopoverCard(state = menuState, callbacks = callbacks)
+                }
+            }
+            // Wrap SegmentedControl в Box с appSurface02 — над паттерн-фоном дефолтный
+            // полупрозрачный контейнер скан-контрола читается плохо, нужна plain surface02
+            // подложка. Сам SegmentedControlView сидит сверху без принудительной ширины —
+            // он измеряет себя по содержимому (см. onMeasure: max(natural) + 12dp padding),
+            // фиксированная width(152.dp) ломала layout при switch'е (текст внутри прыгал).
+            Box(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(top = 8.dp)
-                    .width(152.dp)
-                    .height(32.dp),
-            )
+                    .clip(RoundedCornerShape(9.dp))
+                    .background(appSurface02(isDark)),
+            ) {
+                AndroidView(
+                    factory = { ctx -> SegmentedControlView(ctx) },
+                    update = { view ->
+                        view.configure(
+                            labels = listOf("Ответ", "Ссылка"),
+                            selectedIndex = selectedTab,
+                            onSelect = { selectedTab = it },
+                            colorScheme = brand.segmentedControlColorScheme(isDark),
+                        )
+                    },
+                )
+            }
         }
         // Зеркалим ChatDetailViewModel.resolveAuthorName: "Вы" для своих сообщений (у меня
         // самого нет записи в personaForUser, поэтому без явной ветки senderPersona = null →
@@ -381,7 +408,7 @@ fun QuoteV5FullScreenContent(
             label = "v5BottomStrip",
         ) { tab ->
             if (tab == 1) {
-                BottomStripLink()
+                BottomStripLink(onIconClick = { popoverOpen = !popoverOpen })
             } else {
                 BottomStrip(
                     senderName = senderName,
@@ -558,10 +585,11 @@ private fun BottomStrip(
 }
 
 @Composable
-private fun BottomStripLink() {
+private fun BottomStripLink(onIconClick: () -> Unit) {
     val brand = LocalAppBrand.current
     val isDark = LocalIsDark.current
     val borderColor = appBasic(isDark, 0.08f)
+    val stripInteractionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -574,6 +602,12 @@ private fun BottomStripLink() {
                     strokeWidth = 1.dp.toPx(),
                 )
             }
+            // Тап по всей секции toggling popover, без ripple — повторяем паттерн BottomStrip.
+            .clickable(
+                interactionSource = stripInteractionSource,
+                indication = null,
+                onClick = onIconClick,
+            )
             .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
             .heightIn(min = 40.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -621,6 +655,7 @@ private fun LinkBubbleOverlay(
     senderPersona: Persona?,
     isMine: Boolean,
     snapshotRange: Pair<Int, Int>?,
+    bottomSpacerDp: Dp,
 ) {
     val brand = LocalAppBrand.current
     val isDark = LocalIsDark.current
@@ -634,40 +669,144 @@ private fun LinkBubbleOverlay(
             ?: replyPreviewText(message)
     }
     val scheme = remember(brand, isDark) { brand.linkBubbleColorScheme(isDark) }
+    val patternAsset = remember(brand) { brand.backgroundPatternName(1) }
+    val patternColorScheme = remember(brand, isDark) {
+        brand.backgroundPatternColorScheme(isDark, paletteIndex = 0)
+    }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(appSurface01(isDark)),
-        contentAlignment = Alignment.Center,
     ) {
+        // Pattern-фон — тот же, что в PreviewArea на вкладке «Ответ», чтобы визуальная
+        // континуация между вкладками сохранялась.
         AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+            modifier = Modifier.fillMaxSize(),
             factory = { ctx ->
-                LinkBubbleView(ctx).apply {
+                BackgroundPatternView(ctx).apply {
                     layoutParams = android.view.ViewGroup.LayoutParams(
                         android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                     )
+                    configure(patternAsset, patternColorScheme)
                 }
             },
-            update = { view ->
-                view.configure(
-                    type = LinkBubbleView.BubbleType.MY,
-                    title = "Суммаризация записи ВКС (аналог Plaud)",
-                    description = "Рабочее пространство для обсуждения задач и обмена ключевыми обновлениями по текущему проекту",
-                    url = "https://web.frisbee.live/im/2021316695",
-                    domain = "",
-                    labels = listOf("Группа"),
-                    time = "10:15",
-                    sendingState = LinkBubbleView.SendingState.READ,
-                    replySender = replySender,
-                    replyText = replyText,
-                    colorScheme = scheme,
-                )
-            },
+            update = { v -> v.configure(patternAsset, patternColorScheme) },
         )
+        // Бабл прижат к низу — то же расположение, что у QuoteBubblePreview в PreviewArea.
+        // bottomSpacerDp получаем из родителя — тот же animated value, что у вкладки «Ответ»,
+        // так что бабл едет вверх синхронно с popover'ом.
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom,
+        ) {
+            AndroidView(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                factory = { ctx ->
+                    LinkBubbleView(ctx).apply {
+                        layoutParams = android.view.ViewGroup.LayoutParams(
+                            android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                            android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                        )
+                    }
+                },
+                update = { view ->
+                    view.configure(
+                        type = LinkBubbleView.BubbleType.MY,
+                        title = "Суммаризация записи ВКС (аналог Plaud)",
+                        description = "Рабочее пространство для обсуждения задач и обмена ключевыми обновлениями по текущему проекту",
+                        url = "https://web.frisbee.live/im/2021316695",
+                        domain = "",
+                        labels = listOf("Группа"),
+                        time = "10:15",
+                        sendingState = LinkBubbleView.SendingState.READ,
+                        replySender = replySender,
+                        replyText = replyText,
+                        colorScheme = scheme,
+                    )
+                },
+            )
+            Spacer(Modifier.height(bottomSpacerDp))
+        }
+    }
+}
+
+@Composable
+private fun LinkPopoverCard(
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit,
+) {
+    val isDark = LocalIsDark.current
+    val items = listOf("Общая информация", "Главное сообщение")
+    Box(
+        modifier = Modifier
+            .width(250.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(appSurface02(isDark)),
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            items.forEachIndexed { i, label ->
+                LinkPopoverMenuItem(
+                    label = label,
+                    isSelected = i == selectedIndex,
+                    onClick = { onSelect(i) },
+                )
+                if (i < items.lastIndex) {
+                    HorizontalDivider(
+                        thickness = 0.5.dp,
+                        color = appBasic(isDark, 0.08f),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LinkPopoverMenuItem(
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val isDark = LocalIsDark.current
+    val labelColor = appBasic(isDark, 0.9f)
+    val iconColor = appBasic(isDark, 0.55f)
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val itemBg = if (isPressed) appBasic(isDark, 0.08f) else Color.Transparent
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .background(itemBg)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+            )
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = label,
+            color = labelColor,
+            fontSize = 15.sp,
+            lineHeight = 20.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        Box(
+            modifier = Modifier.size(24.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (isSelected) {
+                DsIconImage(name = "check-active-small", tint = iconColor, sizeDp = 24)
+            }
+        }
     }
 }
