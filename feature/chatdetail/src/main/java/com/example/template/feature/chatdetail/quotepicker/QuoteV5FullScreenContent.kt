@@ -448,7 +448,6 @@ fun QuoteV5FullScreenContent(
                     senderName = senderName,
                     previewText = previewText,
                     popoverOpen = popoverOpen,
-                    menuState = menuState,
                     onIconClick = { popoverOpen = !popoverOpen },
                 )
             }
@@ -541,13 +540,8 @@ private fun BottomStrip(
     senderName: String,
     previewText: String,
     popoverOpen: Boolean,
-    menuState: QuoteMenuState,
     onIconClick: () -> Unit,
 ) {
-    val iconName = when (menuState) {
-        QuoteMenuState.INITIAL_WITH_QUOTE, QuoteMenuState.SELECTING -> "reply-quote"
-        QuoteMenuState.INITIAL, QuoteMenuState.INITIAL_MINIMAL -> "reply-setting"
-    }
     val brand = LocalAppBrand.current
     val isDark = LocalIsDark.current
     val borderColor = appBasic(isDark, 0.08f)
@@ -593,7 +587,7 @@ private fun BottomStrip(
                         .background(appBasic(isDark, 0.08f)),
                 )
             }
-            DsIconImage(name = iconName, tint = appBasic(isDark, 0.55f), sizeDp = 24)
+            DsIconImage(name = "reply-setting", tint = appBasic(isDark, 0.55f), sizeDp = 24)
         }
         Column(
             modifier = Modifier
