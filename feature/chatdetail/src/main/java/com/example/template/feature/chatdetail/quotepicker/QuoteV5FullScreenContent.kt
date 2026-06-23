@@ -162,9 +162,11 @@ fun QuoteV5FullScreenContent(
                 snapshotRange = live.first to live.last
             }
             clearSelectionRef.value?.invoke()
-            popoverOpen = false
             tvRef.value?.clearFocus()
         }
+        // На любом переключении вкладок popover открыт (правило юзера) — и при входе
+        // на «Ссылка», и при возврате на «Ответ».
+        popoverOpen = true
     }
 
     Column(
@@ -359,8 +361,9 @@ fun QuoteV5FullScreenContent(
                     LinkPopoverCard(
                         selectedIndex = linkPopoverSelection,
                         onSelect = { i ->
+                            // Popover остаётся открытым после выбора (правило юзера) —
+                            // только обновляем selection state.
                             linkPopoverSelection = i
-                            popoverOpen = false
                         },
                     )
                 } else {
