@@ -421,7 +421,10 @@ fun QuoteV5FullScreenContent(
             label = "v5BottomStrip",
         ) { tab ->
             if (tab == 1) {
-                BottomStripLink(onIconClick = { popoverOpen = !popoverOpen })
+                BottomStripLink(
+                    popoverOpen = popoverOpen,
+                    onIconClick = { popoverOpen = !popoverOpen },
+                )
             } else {
                 BottomStrip(
                     senderName = senderName,
@@ -598,11 +601,16 @@ private fun BottomStrip(
 }
 
 @Composable
-private fun BottomStripLink(onIconClick: () -> Unit) {
+private fun BottomStripLink(
+    popoverOpen: Boolean,
+    onIconClick: () -> Unit,
+) {
     val brand = LocalAppBrand.current
     val isDark = LocalIsDark.current
     val borderColor = appBasic(isDark, 0.08f)
     val stripInteractionSource = remember { MutableInteractionSource() }
+    // Геометрия и поведение строго зеркалит BottomStrip (вкладка «Ответ»), чтобы
+    // обе секции имели одинаковую высоту и одинаковый tap-feedback вокруг иконки.
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -615,13 +623,14 @@ private fun BottomStripLink(onIconClick: () -> Unit) {
                     strokeWidth = 1.dp.toPx(),
                 )
             }
-            // Тап по всей секции toggling popover, без ripple — повторяем паттерн BottomStrip.
             .clickable(
                 interactionSource = stripInteractionSource,
                 indication = null,
                 onClick = onIconClick,
             )
-            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
+            // end=8dp — компенсация под close-кнопку (как в BottomStrip / MessagePanel canon);
+            // bottom=4dp такой же.
+            .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
             .heightIn(min = 40.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -630,15 +639,22 @@ private fun BottomStripLink(onIconClick: () -> Unit) {
             modifier = Modifier.size(24.dp),
             contentAlignment = Alignment.Center,
         ) {
+            if (popoverOpen) {
+                Box(
+                    modifier = Modifier
+                        .requiredSize(36.dp)
+                        .clip(CircleShape)
+                        .background(appBasic(isDark, 0.08f)),
+                )
+            }
             DsIconImage(name = "link-chain", tint = Color(brand.accentColor(isDark)), sizeDp = 24)
         }
         Column(
             modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Text(
                 text = "Прикрепленная ссылка",
-                style = DSTypography.body3M.toComposeTextStyle(),
+                style = DSTypography.body4M.toComposeTextStyle(),
                 color = Color(brand.accentColor(isDark)),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
