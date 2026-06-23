@@ -238,7 +238,7 @@ fun QuoteV5FullScreenContent(
                 onRightClick = { onRightClickLatest.value() },
             )
         }
-        HeaderHost(config = headerConfig)
+        HeaderHost(config = headerConfig, backgroundColorOverride = appSurface01(isDark))
 
         Row(
             modifier = Modifier
