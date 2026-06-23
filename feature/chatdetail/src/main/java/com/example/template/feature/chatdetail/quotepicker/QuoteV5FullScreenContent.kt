@@ -665,7 +665,7 @@ private fun BottomStripLink(
                         .background(appBasic(isDark, 0.08f)),
                 )
             }
-            DsIconImage(name = "link-chain", tint = Color(brand.accentColor(isDark)), sizeDp = 24)
+            DsIconImage(name = "link-chain", tint = appBasic(isDark, 0.55f), sizeDp = 24)
         }
         Column(
             modifier = Modifier.weight(1f),
@@ -825,8 +825,9 @@ private fun LinkPopoverMenuItem(
     onClick: () -> Unit,
 ) {
     val isDark = LocalIsDark.current
+    val context = androidx.compose.ui.platform.LocalContext.current
     val labelColor = appBasic(isDark, 0.9f)
-    val iconColor = appBasic(isDark, 0.55f)
+    val successColor = remember(context) { Color(com.example.components.designsystem.DSColors.success(context)) }
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val itemBg = if (isPressed) appBasic(isDark, 0.08f) else Color.Transparent
@@ -858,7 +859,7 @@ private fun LinkPopoverMenuItem(
             contentAlignment = Alignment.Center,
         ) {
             if (isSelected) {
-                DsIconImage(name = "check-active-small", tint = iconColor, sizeDp = 24)
+                DsIconImage(name = "done", tint = successColor, sizeDp = 24)
             }
         }
     }
