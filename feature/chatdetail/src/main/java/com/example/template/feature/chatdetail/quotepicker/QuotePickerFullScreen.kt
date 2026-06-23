@@ -34,6 +34,7 @@ fun QuotePickerFullScreen(
     onConfirm: (Int, Int) -> Unit,
     onDismiss: () -> Unit,
     onCancelReply: () -> Unit,
+    draftText: String = "",
 ) {
     // BackHandler установлен ВНУТРИ контента (QuoteFullScreenContent / QuoteV5FullScreenContent) —
     // он имеет доступ к clearSelectionRef для синхронного дисмисса handle-popup'ов.
@@ -59,6 +60,7 @@ fun QuotePickerFullScreen(
             onConfirm = onConfirm,
             onDismiss = onDismiss,
             onCancelReply = onCancelReply,
+            draftText = draftText,
         )
     }
 }

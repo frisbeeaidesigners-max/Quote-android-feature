@@ -240,6 +240,17 @@ class ChatDetailViewModel(
     private val _quotePickerVisible = MutableStateFlow(false)
     val quotePickerVisible: StateFlow<Boolean> = _quotePickerVisible.asStateFlow()
 
+    // Зеркало текста в EditText MessagePanel'а. Используется V5 quote-picker'ом для
+    // показа draft'а как `message`-поля в mock-LinkBubble на вкладке «Ссылка».
+    // ChatDetailScreen вешает TextWatcher на findFirstEditText() и пушит сюда; пока
+    // picker не открыт, эта подписка просто работает в холостую.
+    private val _panelDraftText = MutableStateFlow("")
+    val panelDraftText: StateFlow<String> = _panelDraftText.asStateFlow()
+
+    fun setPanelDraftText(text: String) {
+        _panelDraftText.value = text
+    }
+
     data class EditContext(
         val originalId: String,
         val kind: Kind,

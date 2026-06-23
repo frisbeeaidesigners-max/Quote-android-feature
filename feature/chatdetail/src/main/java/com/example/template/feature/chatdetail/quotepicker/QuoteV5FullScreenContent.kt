@@ -88,6 +88,7 @@ fun QuoteV5FullScreenContent(
     onConfirm: (Int, Int) -> Unit,
     onDismiss: () -> Unit,
     onCancelReply: () -> Unit,
+    draftText: String = "",
 ) {
     val isDark = LocalIsDark.current
     val brand = LocalAppBrand.current
@@ -316,6 +317,7 @@ fun QuoteV5FullScreenContent(
                     isMine = isMine,
                     snapshotRange = snapshotRange,
                     bottomSpacerDp = animatedBubbleBottomDp,
+                    draftText = draftText,
                 )
             }
             val callbacks = MenuCallbacks(
@@ -667,6 +669,7 @@ private fun LinkBubbleOverlay(
     isMine: Boolean,
     snapshotRange: Pair<Int, Int>?,
     bottomSpacerDp: Dp,
+    draftText: String,
 ) {
     val brand = LocalAppBrand.current
     val isDark = LocalIsDark.current
@@ -727,6 +730,7 @@ private fun LinkBubbleOverlay(
                 update = { view ->
                     view.configure(
                         type = LinkBubbleView.BubbleType.MY,
+                        message = draftText,
                         title = "Google Meet",
                         description = "Видеовстреча для обсуждения задач и обмена ключевыми обновлениями по текущему проекту",
                         url = "https://meet.google.com/dvz-prtb-xyk",

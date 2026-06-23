@@ -365,6 +365,7 @@ class MainActivity : ComponentActivity() {
                                                 onClick = {},
                                             ),
                                     ) {
+                                        val draftText by chatVm.panelDraftText.collectAsState()
                                         QuotePickerFullScreen(
                                             variant = variant,
                                             message = originalMessage,
@@ -373,6 +374,7 @@ class MainActivity : ComponentActivity() {
                                             isMine = originalMessage.isMine,
                                             initialStart = cv.quoteStart ?: 0,
                                             initialEnd = cv.quoteEnd ?: 0,
+                                            draftText = draftText,
                                             onConfirm = { start, end ->
                                                 if (start == end) chatVm.clearQuote()
                                                 else chatVm.setQuote(start, end)
