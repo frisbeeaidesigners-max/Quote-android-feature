@@ -775,6 +775,10 @@ private fun LinkBubbleOverlay(
                         replySender = replySender,
                         replyText = replyText,
                         colorScheme = scheme,
+                        // Если есть выбранный фрагмент — reply оформляется как цитата
+                        // (маленький quote-индикатор в правом верхнем углу reply-секции).
+                        showQuoteIcon = snapshotRange != null,
+                        quoteIconTint = scheme.replyNameColor,
                     )
                 },
             )
