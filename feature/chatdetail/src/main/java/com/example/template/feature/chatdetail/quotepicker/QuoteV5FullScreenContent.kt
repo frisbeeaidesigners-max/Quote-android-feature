@@ -356,13 +356,25 @@ fun QuoteV5FullScreenContent(
             else senderPersona?.fullName?.takeIf { it.isNotEmpty() } ?: "Собеседник"
         }
         val previewText = remember(message) { replyPreviewText(message) }
-        BottomStrip(
-            senderName = senderName,
-            previewText = previewText,
-            popoverOpen = popoverOpen,
-            menuState = menuState,
-            onIconClick = { popoverOpen = !popoverOpen },
-        )
+        AnimatedContent(
+            targetState = selectedTab,
+            transitionSpec = {
+                fadeIn(tween(150)) togetherWith fadeOut(tween(150))
+            },
+            label = "v5BottomStrip",
+        ) { tab ->
+            if (tab == 1) {
+                BottomStripLink()
+            } else {
+                BottomStrip(
+                    senderName = senderName,
+                    previewText = previewText,
+                    popoverOpen = popoverOpen,
+                    menuState = menuState,
+                    onIconClick = { popoverOpen = !popoverOpen },
+                )
+            }
+        }
     }
 }
 
@@ -519,6 +531,56 @@ private fun BottomStrip(
             )
             Text(
                 text = previewText,
+                style = DSTypography.body5R.toComposeTextStyle(),
+                color = appBasic(isDark, 0.5f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Composable
+private fun BottomStripLink() {
+    val brand = LocalAppBrand.current
+    val isDark = LocalIsDark.current
+    val borderColor = appBasic(isDark, 0.08f)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(appSurface01(isDark))
+            .drawBehind {
+                drawLine(
+                    color = borderColor,
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, 0f),
+                    strokeWidth = 1.dp.toPx(),
+                )
+            }
+            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
+            .heightIn(min = 40.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier.size(24.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            DsIconImage(name = "link-chain", tint = Color(brand.accentColor(isDark)), sizeDp = 24)
+        }
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                text = "Прикрепленная ссылка",
+                style = DSTypography.body3M.toComposeTextStyle(),
+                color = Color(brand.accentColor(isDark)),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = "https://web.frisbee.live/im/2021316695",
                 style = DSTypography.body5R.toComposeTextStyle(),
                 color = appBasic(isDark, 0.5f),
                 maxLines = 1,
