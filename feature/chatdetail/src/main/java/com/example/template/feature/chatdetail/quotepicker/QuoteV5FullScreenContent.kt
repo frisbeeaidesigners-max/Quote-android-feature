@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.widget.TextView
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import com.example.components.bubbles.LinkBubbleView
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
@@ -268,6 +269,19 @@ fun QuoteV5FullScreenContent(
                 bottomSpacerDp = animatedBubbleBottomDp,
                 menuClipBottomInsetDp = menuClipBottomInsetDp,
             )
+            androidx.compose.animation.AnimatedVisibility(
+                visible = selectedTab == 1,
+                enter = fadeIn(tween(150)),
+                exit = fadeOut(tween(150)),
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                LinkBubbleOverlay(
+                    message = message,
+                    senderPersona = senderPersona,
+                    isMine = isMine,
+                    snapshotRange = snapshotRange,
+                )
+            }
             val callbacks = MenuCallbacks(
                 onSelectFragment = {
                     selectAllRef.value?.invoke()
@@ -520,4 +534,61 @@ private fun extractQuote(message: Message, start: Int, end: Int): String {
     val s = start.coerceIn(0, body.length)
     val e = end.coerceIn(s, body.length)
     return if (s < e) body.substring(s, e) else replyPreviewText(message)
+}
+
+@Composable
+private fun LinkBubbleOverlay(
+    message: Message,
+    senderPersona: Persona?,
+    isMine: Boolean,
+    snapshotRange: Pair<Int, Int>?,
+) {
+    val brand = LocalAppBrand.current
+    val isDark = LocalIsDark.current
+
+    val replySender = remember(isMine, senderPersona) {
+        if (isMine) "Вы"
+        else senderPersona?.fullName?.takeIf { it.isNotEmpty() } ?: "Собеседник"
+    }
+    val replyText = remember(snapshotRange, message) {
+        snapshotRange?.let { (s, e) -> extractQuote(message, s, e) }
+            ?: replyPreviewText(message)
+    }
+    val scheme = remember(brand, isDark) { brand.linkBubbleColorScheme(isDark) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(appSurface01(isDark)),
+        contentAlignment = Alignment.Center,
+    ) {
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            factory = { ctx ->
+                LinkBubbleView(ctx).apply {
+                    layoutParams = android.view.ViewGroup.LayoutParams(
+                        android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                        android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                    )
+                }
+            },
+            update = { view ->
+                view.configure(
+                    type = LinkBubbleView.BubbleType.MY,
+                    title = "Суммаризация записи ВКС (аналог Plaud)",
+                    description = "Рабочее пространство для обсуждения задач и обмена ключевыми обновлениями по текущему проекту",
+                    url = "https://web.frisbee.live/im/2021316695",
+                    domain = "",
+                    labels = listOf("Группа"),
+                    time = "10:15",
+                    sendingState = LinkBubbleView.SendingState.READ,
+                    replySender = replySender,
+                    replyText = replyText,
+                    colorScheme = scheme,
+                )
+            },
+        )
+    }
 }
