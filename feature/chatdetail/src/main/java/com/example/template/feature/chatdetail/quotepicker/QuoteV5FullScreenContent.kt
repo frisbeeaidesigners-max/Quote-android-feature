@@ -122,6 +122,25 @@ fun QuoteV5FullScreenContent(
         if (menuState == QuoteMenuState.SELECTING) popoverOpen = true
     }
 
+    var snapshotRange by rememberSaveable {
+        mutableStateOf(
+            if (initialStart < initialEnd) initialStart to initialEnd else null
+        )
+    }
+
+    LaunchedEffect(menuState) {
+        when (menuState) {
+            QuoteMenuState.INITIAL_WITH_QUOTE -> {
+                val r = selectionRef.value?.invoke()
+                if (r != null && r.first < r.last) snapshotRange = r.first to r.last
+            }
+            QuoteMenuState.INITIAL, QuoteMenuState.INITIAL_MINIMAL -> {
+                snapshotRange = null
+            }
+            QuoteMenuState.SELECTING -> Unit
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -135,9 +154,14 @@ fun QuoteV5FullScreenContent(
             onDismiss()
         })
         val onRightClickLatest = rememberUpdatedState(newValue = {
-            val range = selectionRef.value?.invoke()
+            val live = selectionRef.value?.invoke()
+            val (s, e) = if (live != null && live.first < live.last) {
+                live.first to live.last
+            } else {
+                snapshotRange ?: (0 to 0)
+            }
             clearSelectionRef.value?.invoke()
-            onConfirm(range?.first ?: 0, range?.last ?: 0)
+            onConfirm(s, e)
         })
         val headerConfig = remember(menuState, selectedTab) {
             val title = if (selectedTab == 1) {
@@ -250,9 +274,14 @@ fun QuoteV5FullScreenContent(
                     menuState = QuoteMenuState.SELECTING
                 },
                 onApply = {
-                    val range = selectionRef.value?.invoke()
+                    val live = selectionRef.value?.invoke()
+                    val (s, e) = if (live != null && live.first < live.last) {
+                        live.first to live.last
+                    } else {
+                        snapshotRange ?: (0 to 0)
+                    }
                     clearSelectionRef.value?.invoke()
-                    onConfirm(range?.first ?: 0, range?.last ?: 0)
+                    onConfirm(s, e)
                 },
                 onCancelReply = {
                     clearSelectionRef.value?.invoke()
@@ -263,9 +292,14 @@ fun QuoteV5FullScreenContent(
                     menuState = QuoteMenuState.INITIAL
                 },
                 onConfirmQuote = {
-                    val range = selectionRef.value?.invoke()
+                    val live = selectionRef.value?.invoke()
+                    val (s, e) = if (live != null && live.first < live.last) {
+                        live.first to live.last
+                    } else {
+                        snapshotRange ?: (0 to 0)
+                    }
                     clearSelectionRef.value?.invoke()
-                    onConfirm(range?.first ?: 0, range?.last ?: 0)
+                    onConfirm(s, e)
                 },
                 onClearQuote = {
                     clearSelectionRef.value?.invoke()
@@ -478,4 +512,12 @@ private fun BottomStrip(
             )
         }
     }
+}
+
+private fun extractQuote(message: Message, start: Int, end: Int): String {
+    val body = (message as? Message.Text)?.body ?: return replyPreviewText(message)
+    if (body.isEmpty()) return replyPreviewText(message)
+    val s = start.coerceIn(0, body.length)
+    val e = end.coerceIn(s, body.length)
+    return if (s < e) body.substring(s, e) else replyPreviewText(message)
 }
