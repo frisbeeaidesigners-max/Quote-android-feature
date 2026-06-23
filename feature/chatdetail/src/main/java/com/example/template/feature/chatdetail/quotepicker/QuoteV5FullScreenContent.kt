@@ -398,30 +398,6 @@ fun QuoteV5FullScreenContent(
                     PopoverCard(state = menuState, callbacks = callbacks)
                 }
             }
-            // Wrap SegmentedControl в Box с appSurface02 — над паттерн-фоном дефолтный
-            // полупрозрачный контейнер скан-контрола читается плохо, нужна plain surface02
-            // подложка. Сам SegmentedControlView сидит сверху без принудительной ширины —
-            // он измеряет себя по содержимому (см. onMeasure: max(natural) + 12dp padding),
-            // фиксированная width(152.dp) ломала layout при switch'е (текст внутри прыгал).
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 8.dp)
-                    .clip(RoundedCornerShape(9.dp))
-                    .background(appSurface02(isDark)),
-            ) {
-                AndroidView(
-                    factory = { ctx -> SegmentedControlView(ctx) },
-                    update = { view ->
-                        view.configure(
-                            labels = listOf("Ответ", "Ссылка"),
-                            selectedIndex = selectedTab,
-                            onSelect = { selectedTab = it },
-                            colorScheme = brand.segmentedControlColorScheme(isDark),
-                        )
-                    },
-                )
-            }
         }
         // Зеркалим ChatDetailViewModel.resolveAuthorName: "Вы" для своих сообщений (у меня
         // самого нет записи в personaForUser, поэтому без явной ветки senderPersona = null →
@@ -449,6 +425,34 @@ fun QuoteV5FullScreenContent(
                     previewText = previewText,
                     popoverOpen = popoverOpen,
                     onIconClick = { popoverOpen = !popoverOpen },
+                )
+            }
+        }
+        // SegmentedControl-секция ПОД reply-строкой. Полная ширина на appSurface01
+        // (как сама reply-строка), внутри — surface02 wrap с центрированным контролом.
+        // Padding'и: 16dp по бокам, 8dp сверху/снизу.
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(appSurface01(isDark))
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(9.dp))
+                    .background(appSurface02(isDark)),
+            ) {
+                AndroidView(
+                    factory = { ctx -> SegmentedControlView(ctx) },
+                    update = { view ->
+                        view.configure(
+                            labels = listOf("Ответ", "Ссылка"),
+                            selectedIndex = selectedTab,
+                            onSelect = { selectedTab = it },
+                            colorScheme = brand.segmentedControlColorScheme(isDark),
+                        )
+                    },
                 )
             }
         }
