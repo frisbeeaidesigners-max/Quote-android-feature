@@ -142,6 +142,14 @@ fun QuoteV5FullScreenContent(
         }
     }
 
+    LaunchedEffect(selectedTab) {
+        if (selectedTab == 1) {
+            clearSelectionRef.value?.invoke()
+            popoverOpen = false
+            tvRef.value?.clearFocus()
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
