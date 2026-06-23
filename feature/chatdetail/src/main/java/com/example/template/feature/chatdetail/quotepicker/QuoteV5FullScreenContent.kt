@@ -161,6 +161,14 @@ fun QuoteV5FullScreenContent(
             if (live != null && live.first < live.last) {
                 snapshotRange = live.first to live.last
             }
+            // Если на момент перехода на «Ссылка» цитата выбрана (либо live, либо был
+            // снимок), считаем выбор зафиксированным и переводим FSM в INITIAL_WITH_QUOTE.
+            // Это нужно, чтобы на возврат пользователя на «Ответ» бабл и popover показывали
+            // состояние «цитата уже выбрана» (а не сброшенное INITIAL), как если бы юзер
+            // подтвердил выбор фрагмента — он же по факту его подтвердил, перейдя дальше.
+            if (snapshotRange != null && menuState != QuoteMenuState.INITIAL_MINIMAL) {
+                menuState = QuoteMenuState.INITIAL_WITH_QUOTE
+            }
             clearSelectionRef.value?.invoke()
             tvRef.value?.clearFocus()
         }
@@ -634,7 +642,7 @@ private fun BottomStripLink(onIconClick: () -> Unit) {
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = "https://web.frisbee.live/im/2021316695",
+                text = "https://meet.google.com/dvz-prtb-xyk",
                 style = DSTypography.body5R.toComposeTextStyle(),
                 color = appBasic(isDark, 0.5f),
                 maxLines = 1,
@@ -719,11 +727,11 @@ private fun LinkBubbleOverlay(
                 update = { view ->
                     view.configure(
                         type = LinkBubbleView.BubbleType.MY,
-                        title = "Суммаризация записи ВКС (аналог Plaud)",
-                        description = "Рабочее пространство для обсуждения задач и обмена ключевыми обновлениями по текущему проекту",
-                        url = "https://web.frisbee.live/im/2021316695",
+                        title = "Google Meet",
+                        description = "Видеовстреча для обсуждения задач и обмена ключевыми обновлениями по текущему проекту",
+                        url = "https://meet.google.com/dvz-prtb-xyk",
                         domain = "",
-                        labels = listOf("Группа"),
+                        labels = null,
                         time = "10:15",
                         sendingState = LinkBubbleView.SendingState.READ,
                         replySender = replySender,
