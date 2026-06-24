@@ -80,16 +80,16 @@ internal fun itemsForState(
     cb: MenuCallbacks,
 ): List<FullScreenMenuItemSpec> = when (state) {
     QuoteMenuState.INITIAL -> listOf(
-        FullScreenMenuItemSpec("Выбрать фрагмент", "quote-full", onClick = cb.onSelectFragment),
+        FullScreenMenuItemSpec("Выбрать фрагмент", "text-select", onClick = cb.onSelectFragment),
         FullScreenMenuItemSpec("Отменить ответ", "delete", isDanger = true, onClick = cb.onCancelReply),
     )
     QuoteMenuState.INITIAL_WITH_QUOTE -> listOf(
-        FullScreenMenuItemSpec("Снять выделение", "cancel-quote", onClick = cb.onClearQuote),
+        FullScreenMenuItemSpec("Снять выделение", "quote-clear", onClick = cb.onClearQuote),
         FullScreenMenuItemSpec("Отменить ответ", "delete", isDanger = true, onClick = cb.onCancelReply),
     )
     QuoteMenuState.SELECTING -> listOf(
         FullScreenMenuItemSpec("Назад", "back", onClick = cb.onBack),
-        FullScreenMenuItemSpec("Цитировать фрагмент", "quote", onClick = cb.onConfirmQuote),
+        FullScreenMenuItemSpec("Цитировать фрагмент", "quote-create", onClick = cb.onConfirmQuote),
     )
     QuoteMenuState.INITIAL_MINIMAL -> listOf(
         FullScreenMenuItemSpec("Отменить ответ", "delete", isDanger = true, onClick = cb.onCancelReply),

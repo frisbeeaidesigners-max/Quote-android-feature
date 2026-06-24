@@ -145,7 +145,7 @@ fun MessagePanelHost(
                     author = replyContext.authorName,
                     preview = replyContext.previewText,
                     showThumbnail = false,
-                    iconName = if (replyContext.canQuote) "reply-setting" else "reply",
+                    iconName = if (replyContext.canQuote) "reply-options" else "reply",
                 )
                 else -> ContextBlock.None
             },

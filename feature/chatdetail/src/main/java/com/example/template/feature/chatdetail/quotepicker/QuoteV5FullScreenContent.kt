@@ -595,7 +595,7 @@ private fun BottomStrip(
                         .background(appBasic(isDark, 0.08f)),
                 )
             }
-            DsIconImage(name = "reply-setting", tint = appBasic(isDark, 0.55f), sizeDp = 24)
+            DsIconImage(name = "reply-options", tint = appBasic(isDark, 0.55f), sizeDp = 24)
         }
         Column(
             modifier = Modifier
