@@ -38,8 +38,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,7 +54,9 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.viewinterop.AndroidView
+import kotlinx.coroutines.flow.first
 import com.example.components.segmentedcontrol.SegmentedControlView
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -743,14 +747,35 @@ private fun LinkBubbleOverlay(
         // Бабл прижат к низу — то же расположение, что у QuoteBubblePreview в PreviewArea.
         // bottomSpacerDp получаем из родителя — тот же animated value, что у вкладки «Ответ»,
         // так что бабл едет вверх синхронно с popover'ом.
+        //
+        // verticalScroll + LaunchedEffect(snapshotFlow{maxValue}.first{it>0}) — зеркалит
+        // PreviewArea на «Ответ». Когда LinkBubble + длинный draft занимают почти всю
+        // высоту, рост bottomSpacerDp при открытии popover'а раздувает контент Column'а
+        // выше viewport'а; без скролла бабл просто выпихивался бы за верх и визуально
+        // оставался на месте — popover ложился бы поверх. С автоскроллом на bottom при
+        // первом overflow'е бабл реально сдвигается вверх, освобождая место под popover.
+        val scrollState = rememberScrollState()
+        LaunchedEffect(message.id) {
+            snapshotFlow { scrollState.maxValue }
+                .first { it > 0 }
+                .let { scrollState.scrollTo(it) }
+        }
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.Bottom,
         ) {
+            // 8dp top spacer — то же, что у PreviewArea на «Ответ» (QuotePickerShared.kt:276).
+            // Виден, только если контент короче viewport'а (при Arrangement.Bottom прижат к
+            // верху bubble'а, отбивает от описания над преview-боксом).
+            Spacer(Modifier.height(8.dp))
             AndroidView(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
+                // fillMaxWidth без горизонтального padding'а — каноническая обёртка для
+                // компонентов-бабблов (см. MessageList.kt:1438 для LinkBubbleView в реальном
+                // чате и QuoteBubblePreview для Text/Media/Voice). Внутренние margin'ы бабл
+                // считает сам — внешний padding ломает выравнивание MY-края к правому борту.
+                modifier = Modifier.fillMaxWidth(),
                 factory = { ctx ->
                     LinkBubbleView(ctx).apply {
                         layoutParams = android.view.ViewGroup.LayoutParams(
