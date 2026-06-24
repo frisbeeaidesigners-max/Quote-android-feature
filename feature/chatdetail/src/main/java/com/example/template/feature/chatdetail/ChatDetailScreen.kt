@@ -77,6 +77,7 @@ fun ChatDetailScreen(
     val selectionActive = selection != null
     val highlighted by viewModel.highlightedMessageId.collectAsState()
     val highlightedQuoteRange by viewModel.highlightedQuoteRange.collectAsState()
+    val quotePickerVisible by viewModel.quotePickerVisible.collectAsState()
     // КЛЮЧЕВО: voicePlayback здесь НЕ читаем (нет collectAsState на уровне ChatDetailScreen).
     // Подписка изолирована в `ChatAudioPanelSlot` ниже и внутри `MessageList`'s voice-item scope.
     // Иначе body ChatDetailScreen пересобирался бы 30 раз/сек при тике плейбэка, вместе с
@@ -130,6 +131,18 @@ fun ChatDetailScreen(
     LaunchedEffect(selectionActive) {
         if (selectionActive) {
             panelRef.value?.dismissKeyboard()
+        }
+    }
+    // При открытии fullscreen picker'а IME прячется через WindowInsetsController в MainActivity,
+    // но Editor'у EditText'а MessagePanel'а это безразлично: фокус и selection range остаются —
+    // и его selection-handle'ы (PopupWindow'ы) продолжают висеть поверх picker'а. Коллапсим
+    // selection до точки: маркеры пропадают (показываются только при start != end), а фокус
+    // остаётся — чтобы controller.show(ime()) в onDispose picker'а смог вернуть клавиатуру.
+    LaunchedEffect(quotePickerVisible) {
+        if (quotePickerVisible) {
+            panelRef.value?.findFirstEditText()?.let { edit ->
+                edit.setSelection(edit.selectionEnd)
+            }
         }
     }
     // Зеркалим текст EditText'а MessagePanel'а в VM, чтобы V5 quote-picker мог использовать
