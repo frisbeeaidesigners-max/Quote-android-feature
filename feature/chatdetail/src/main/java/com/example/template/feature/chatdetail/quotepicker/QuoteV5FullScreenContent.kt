@@ -262,11 +262,11 @@ fun QuoteV5FullScreenContent(
         }
 
         // Бабл едет вверх синхронно с открытием popover'а. Closed → 16dp (V4-дефолт).
-        // Open → menu_height + 20dp (96dp у 2-строчного state'а, 48dp у MINIMAL).
+        // Open → popover bottom-padding 4dp + popoverHeight + 12dp gap-to-bubble.
         val targetBubbleBottomDp = when {
             !popoverOpen -> 16.dp
-            menuState == QuoteMenuState.INITIAL_MINIMAL -> 68.dp
-            else -> 116.dp
+            menuState == QuoteMenuState.INITIAL_MINIMAL -> 64.dp
+            else -> 112.dp
         }
         // В SELECTING — snap вместо tween'а. Bubble shift каждый кадр через Compose-layout
         // не успевает протолкнуть recalc через Editor.SelectionController'у — handles
@@ -279,13 +279,13 @@ fun QuoteV5FullScreenContent(
             label = "v5BubbleBottomInset",
         )
 
-        // Inset для clip-rect'ов action-bar'а / handles. Popover занимает 8dp (bottom anchor)
-        // + popoverHeight + 8dp (gap до клипа). Native Editor пристёгивает floating-bar
-        // и handles выше bottomMenu — не залезают в popover-зону при scroll'е длинного бабла.
+        // Inset для clip-rect'ов action-bar'а / handles. Popover bottom-padding 4dp +
+        // popoverHeight + 8dp (gap до клипа). Native Editor пристёгивает floating-bar и
+        // handles выше bottomMenu — не залезают в popover-зону при scroll'е длинного бабла.
         val menuClipBottomInsetDp = when {
             !popoverOpen -> 0.dp
-            menuState == QuoteMenuState.INITIAL_MINIMAL -> 64.dp   // 8 + 48 + 8
-            else -> 112.dp                                          // 8 + 96 + 8
+            menuState == QuoteMenuState.INITIAL_MINIMAL -> 60.dp   // 4 + 48 + 8
+            else -> 108.dp                                          // 4 + 96 + 8
         }
 
         Box(
@@ -384,7 +384,10 @@ fun QuoteV5FullScreenContent(
                 visible = popoverOpen,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(start = 8.dp, bottom = 8.dp),
+                    // 4dp bottom-зазор до верха BottomStrip'а. До видимого «Прикреплённый
+                    // ответ» получается 12dp (4 + 8 top-padding'а BottomStrip'а). Сдвиг бабла
+                    // скомпенсирован выше через targetBubbleBottomDp / menuClipBottomInsetDp.
+                    .padding(start = 8.dp, bottom = 4.dp),
                 enter = fadeIn(tween(150)) +
                     slideInVertically(tween(220, easing = FastOutSlowInEasing)) { it / 4 },
                 exit = fadeOut(tween(120)),
