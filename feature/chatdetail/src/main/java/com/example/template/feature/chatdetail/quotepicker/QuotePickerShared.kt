@@ -273,7 +273,7 @@ internal fun PreviewArea(
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.Bottom,
         ) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(16.dp))
             QuoteBubblePreview(
                 message = message,
                 senderPersona = senderPersona,
