@@ -7,6 +7,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.components.headers.HeadersView
 import com.example.template.core.ui.LocalAppBrand
@@ -16,10 +18,18 @@ import com.example.template.core.ui.LocalIsDark
 fun HeaderHost(
     config: HeadersView.HeaderConfig,
     modifier: Modifier = Modifier,
+    // Override фона из брендовой схемы (по умолчанию = backgroundBase из DSBrand).
+    // Используется V5 quote-picker'ом, где остальной экран — appSurface01 и
+    // несовпадение цветов между header'ом и контентом бросается в глаза.
+    backgroundColorOverride: Color? = null,
 ) {
     val brand = LocalAppBrand.current
     val isDark = LocalIsDark.current
-    val colorScheme = remember(brand, isDark) { brand.headersColorScheme(isDark) }
+    val colorScheme = remember(brand, isDark, backgroundColorOverride) {
+        val base = brand.headersColorScheme(isDark)
+        if (backgroundColorOverride != null) base.copy(backgroundColor = backgroundColorOverride.toArgb())
+        else base
+    }
     val viewRef = remember { mutableStateOf<HeadersView?>(null) }
 
     // configure() пересоздаёт View-иерархию (removeAllViews + new buttons), поэтому вызываем

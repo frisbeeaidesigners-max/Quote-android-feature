@@ -93,18 +93,18 @@ fun QuoteMenu(
         ) { current ->
             val items: List<MenuItemSpec> = when (current) {
                 QuoteMenuState.INITIAL -> listOf(
-                    MenuItemSpec("Выбрать фрагмент", "quote-full", onClick = onSelectFragment),
+                    MenuItemSpec("Выбрать фрагмент", "text-select", onClick = onSelectFragment),
                     MenuItemSpec("Применить изменения", "check-outline", onClick = onApply),
                     MenuItemSpec("Отменить ответ", "delete", isDanger = true, onClick = onCancelReply),
                 )
                 QuoteMenuState.INITIAL_WITH_QUOTE -> listOf(
-                    MenuItemSpec("Снять выделение", "cancel-quote", onClick = onClearQuote),
+                    MenuItemSpec("Снять выделение", "quote-clear", onClick = onClearQuote),
                     MenuItemSpec("Применить изменения", "check-outline", onClick = onApply),
                     MenuItemSpec("Отменить ответ", "delete", isDanger = true, onClick = onCancelReply),
                 )
                 QuoteMenuState.SELECTING -> listOf(
                     MenuItemSpec("Назад", "back", onClick = onBack),
-                    MenuItemSpec("Цитировать фрагмент", "quote", onClick = onConfirmQuote),
+                    MenuItemSpec("Цитировать фрагмент", "quote-create", onClick = onConfirmQuote),
                 )
                 QuoteMenuState.INITIAL_MINIMAL -> listOf(
                     MenuItemSpec("Применить изменения", "check-outline", onClick = onApply),

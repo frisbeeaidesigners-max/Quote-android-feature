@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -129,6 +130,29 @@ fun ChatDetailScreen(
     LaunchedEffect(selectionActive) {
         if (selectionActive) {
             panelRef.value?.dismissKeyboard()
+        }
+    }
+    // Зеркалим текст EditText'а MessagePanel'а в VM, чтобы V5 quote-picker мог использовать
+    // его как `message`-поле в mock-LinkBubble на вкладке «Ссылка». TextWatcher
+    // переустанавливается при смене panel-инстанса; на dispose чистим listener.
+    DisposableEffect(panel) {
+        val edit = panel?.findFirstEditText()
+        val watcher = edit?.let { e ->
+            val w = object : android.text.TextWatcher {
+                override fun afterTextChanged(s: android.text.Editable?) {
+                    viewModel.setPanelDraftText(s?.toString().orEmpty())
+                }
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            }
+            e.addTextChangedListener(w)
+            // Инициализируем VM текущим значением — на случай рестарта Compose'а без
+            // перенаведения watcher'а до первого keystroke.
+            viewModel.setPanelDraftText(e.text?.toString().orEmpty())
+            w
+        }
+        onDispose {
+            if (edit != null && watcher != null) edit.removeTextChangedListener(watcher)
         }
     }
     BackHandler(enabled = selectionActive) {

@@ -10,6 +10,8 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -43,6 +45,7 @@ import com.example.template.core.ui.AppScaffold
 import com.example.template.core.ui.AppTheme
 import com.example.template.core.ui.LocalBitmapCache
 import com.example.template.core.ui.LocalThemeToggle
+import com.example.template.core.ui.LocalQuotePickerVariant
 import com.example.template.feature.chatdetail.ChatDetailScreen
 import com.example.template.feature.chatdetail.ChatDetailViewModel
 import com.example.template.feature.chatdetail.ContextMenuOverlay
@@ -80,6 +83,7 @@ class MainActivity : ComponentActivity() {
                 LocalAppContainer provides container,
                 LocalBitmapCache provides container.bitmapCache,
                 LocalThemeToggle provides toggleTheme,
+                LocalQuotePickerVariant provides container.quotePickerVariant,
             ) {
                 AppTheme(isDark = isDark) {
                     // SplashOverlay рендерится поверх всего на первой композиции; main UI ниже
@@ -340,21 +344,46 @@ class MainActivity : ComponentActivity() {
                                     val senderAvatar = remember(senderPersona?.avatarAsset, cacheVersion) {
                                         senderPersona?.avatarAsset?.let { container.bitmapCache.get(it) }
                                     }
-                                    QuotePickerFullScreen(
-                                        message = originalMessage,
-                                        senderPersona = senderPersona,
-                                        senderAvatar = senderAvatar,
-                                        isMine = originalMessage.isMine,
-                                        initialStart = cv.quoteStart ?: 0,
-                                        initialEnd = cv.quoteEnd ?: 0,
-                                        onConfirm = { start, end ->
-                                            if (start == end) chatVm.clearQuote()
-                                            else chatVm.setQuote(start, end)
-                                            chatVm.dismissQuotePicker()
-                                        },
-                                        onDismiss = { chatVm.dismissQuotePicker() },
-                                        onCancelReply = { chatVm.dismissReplyContext() },
-                                    )
+                                    val variantFlow = LocalQuotePickerVariant.current
+                                    val variant by variantFlow.collectAsState()
+                                    // Барьер тапов: picker — Compose-overlay (НЕ Dialog/Window),
+                                    // соседствует с AppScaffold в одном composition-родителе.
+                                    // Без `clickable` на корне «прозрачные» зоны picker'а пропускают
+                                    // тапы до MessagePanel'а под ним — это приводило к спонтанным
+                                    // открытиям attachments / voice / context-блока в чате после
+                                    // dismiss'а picker'а. Indication=null, onClick={} — no-op
+                                    // ловушка; глубоко-вложенные clickable'ы у кнопок/popover'а
+                                    // обрабатываются раньше (deepest-first), сюда долетает только
+                                    // unhandled-фон.
+                                    val pickerBarrierInteraction = remember { MutableInteractionSource() }
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clickable(
+                                                interactionSource = pickerBarrierInteraction,
+                                                indication = null,
+                                                onClick = {},
+                                            ),
+                                    ) {
+                                        val draftText by chatVm.panelDraftText.collectAsState()
+                                        QuotePickerFullScreen(
+                                            variant = variant,
+                                            message = originalMessage,
+                                            senderPersona = senderPersona,
+                                            senderAvatar = senderAvatar,
+                                            isMine = originalMessage.isMine,
+                                            initialStart = cv.quoteStart ?: 0,
+                                            initialEnd = cv.quoteEnd ?: 0,
+                                            draftText = draftText,
+                                            onConfirm = { start, end ->
+                                                if (start == end) chatVm.clearQuote()
+                                                else chatVm.setQuote(start, end)
+                                                chatVm.dismissQuotePicker()
+                                            },
+                                            onDismiss = { chatVm.dismissQuotePicker() },
+                                            onCancelReply = { chatVm.dismissReplyContext() },
+                                        )
+                                    }
                                 }
                             }
                         }

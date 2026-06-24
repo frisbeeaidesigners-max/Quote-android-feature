@@ -22,6 +22,6 @@
 
 ## Текущее содержимое
 
-Слот под `quote-*.svg` — индикатор quote-reply в Text/Media бабблах
-(`BubblesView/MediaBubbleView.replyQuoteIcon`, ищет `quote-s`) и пункты меню
-quote-picker'а (`quote`, `quote-full`).
+Сейчас слот пуст. Quote/reply иконки (`quote`, `quote-clear`, `quote-create`,
+`reply-quote`, `reply-options`, `text-select`) ушли в icons-library и
+подтягиваются `syncIconsFromLibrary`.
