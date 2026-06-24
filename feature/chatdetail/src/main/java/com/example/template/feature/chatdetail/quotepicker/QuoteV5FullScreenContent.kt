@@ -667,7 +667,7 @@ private fun BottomStripLink(
                         .background(appBasic(isDark, 0.08f)),
                 )
             }
-            DsIconImage(name = "link-chain", tint = appBasic(isDark, 0.55f), sizeDp = 24)
+            DsIconImage(name = "my-link-setting", tint = appBasic(isDark, 0.55f), sizeDp = 24)
         }
         Column(
             modifier = Modifier.weight(1f),
@@ -766,10 +766,10 @@ private fun LinkBubbleOverlay(
                 .verticalScroll(scrollState),
             verticalArrangement = Arrangement.Bottom,
         ) {
-            // 8dp top spacer — то же, что у PreviewArea на «Ответ» (QuotePickerShared.kt:276).
+            // 16dp top spacer — то же, что у PreviewArea на «Ответ» (QuotePickerShared.kt:276).
             // Виден, только если контент короче viewport'а (при Arrangement.Bottom прижат к
             // верху bubble'а, отбивает от описания над преview-боксом).
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(16.dp))
             AndroidView(
                 // fillMaxWidth без горизонтального padding'а — каноническая обёртка для
                 // компонентов-бабблов (см. MessageList.kt:1438 для LinkBubbleView в реальном
