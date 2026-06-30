@@ -214,11 +214,15 @@ fun QuoteModalContent(
         // Preview Box corner radius: BUTTONS → 34dp (выраженный pill вокруг floating pill-
         // хедера), SWIPE и STICKY → 24dp.
         val previewCornerRadius = if (variant == QuoteVariant.MODAL_BUTTONS) 34.dp else 24.dp
+        // Preview Box height: для STICKY+ON ниже QuoteMenu появляется segmented control
+        // («Ответ / Ссылка») — без уменьшения высоты segmented уходит под навбар. Остальные
+        // варианты используют полную высоту 564dp.
+        val previewHeight = if (variant == QuoteVariant.MODAL_STICKY && linkRender) 460.dp else 564.dp
         Box(
             Modifier
                 .fillMaxWidth()
                 .widthIn(max = 351.dp)
-                .height(564.dp)
+                .height(previewHeight)
                 .clip(RoundedCornerShape(previewCornerRadius))
                 .background(previewBg)
                 .onGloballyPositioned { coords ->
