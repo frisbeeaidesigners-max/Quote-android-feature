@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import com.example.template.core.ui.LocalAppBrand
 import com.example.template.core.ui.LocalIsDark
 import com.example.template.core.ui.appBasic
+import com.example.template.core.ui.appSurface01
 import kotlin.math.roundToInt
 
 private val RobotoFontFamilySwipe = FontFamily(
@@ -178,6 +180,49 @@ internal fun QuoteModalStaticFooter(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        Text(
+            text = title,
+            color = appBasic(isDark, 0.9f),
+            fontFamily = RobotoFontFamilySwipe,
+            fontWeight = FontWeight.Medium,
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            text = "Вы можете процитировать фрагмент сообщения",
+            color = appBasic(isDark, 0.5f),
+            fontFamily = RobotoFontFamilySwipe,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+/**
+ * V1 sticky header — Title+Description блок поверх верха preview Box'а (как в первой
+ * итерации Modal'а в android-template-quote @ 4c4036f). Используется только в состоянии
+ * `MODAL_DOTS + linkRender=OFF` — внешнего bottom footer'а нет, header лежит внутри
+ * preview-card'а на appSurface01 фоне. BackgroundPatternView и QuoteBubblePreview под
+ * ним остаются скроллящимися; 60dp top-spacer в content-Column'е резервирует место.
+ */
+@Composable
+internal fun QuoteModalStickyHeader(
+    menuState: QuoteMenuState,
+    modifier: Modifier = Modifier,
+) {
+    val isDark = LocalIsDark.current
+    val title = when (menuState) {
+        QuoteMenuState.INITIAL_WITH_QUOTE, QuoteMenuState.SELECTING -> "Ответ на цитату"
+        else -> "Ответ на сообщение"
+    }
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(appSurface01(isDark))
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = title,

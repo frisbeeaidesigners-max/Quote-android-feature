@@ -204,8 +204,13 @@ fun QuoteModalContent(
     ) {
         val handleOverflowPx = with(density) { 24.dp.roundToPx() }
         // Preview Box (Header c Title/Description/Dots — внутри, прижат к низу).
-        // V1 — 24dp, V2 — 34dp (более выраженный pill-стиль вокруг floating pill-хедера).
-        val previewCornerRadius = if (linkRender && variant == QuoteVariant.MODAL_DOTS) 24.dp else 34.dp
+        // DOTS — 24dp (V1 sticky-header OFF + V2 dots ON), BUTTONS — 34dp (более выраженный
+        // pill-стиль вокруг floating pill-хедера).
+        val previewCornerRadius = if (variant == QuoteVariant.MODAL_DOTS) 24.dp else 34.dp
+        // V1 sticky-header режим: DOTS + linkRender OFF → sticky header INSIDE preview Box,
+        // без внешнего bottom footer'а. Зеркалит первую итерацию Modal'а из sibling
+        // android-template-quote @ 4c4036f.
+        val useV1StickyHeader = !linkRender && variant == QuoteVariant.MODAL_DOTS
         Box(
             Modifier
                 .fillMaxWidth()
@@ -272,7 +277,9 @@ fun QuoteModalContent(
                             .verticalScroll(scrollState),
                         verticalArrangement = Arrangement.Bottom,
                     ) {
-                        Spacer(Modifier.height(16.dp))
+                        // 60dp в V1-режиме резервирует место под sticky header'ом сверху;
+                        // в остальных случаях — стандартный 16dp top-gap.
+                        Spacer(Modifier.height(if (useV1StickyHeader) 60.dp else 16.dp))
                         QuoteBubblePreview(
                             message = message,
                             senderPersona = senderPersona,
@@ -352,7 +359,15 @@ fun QuoteModalContent(
                             .padding(8.dp),
                     )
                 }
+            } else if (useV1StickyHeader) {
+                // DOTS + OFF — V1 sticky header INSIDE preview Box (TopCenter), без bottom footer'а.
+                QuoteModalStickyHeader(
+                    menuState = menuState,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                )
             } else {
+                // BUTTONS + OFF — bottom-aligned StaticFooter (visually идентично BUTTONS+ON
+                // минус кнопки-стрелки).
                 QuoteModalStaticFooter(
                     menuState = menuState,
                     modifier = Modifier
