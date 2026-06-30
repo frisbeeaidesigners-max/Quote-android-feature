@@ -278,7 +278,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, onClose: () -> Unit = {}, onEdit:
                             },
                             update = { view ->
                                 view.configure(
-                                    labels = listOf("Полноэкранный", "Точки", "Кнопки"),
+                                    labels = listOf("1", "2", "3"),
                                     selectedIndex = style.ordinal,
                                     onSelect = { idx ->
                                         styleFlow.value = QuotePickerStyle.values()[idx]
