@@ -258,7 +258,7 @@ internal fun QuoteMenuChoice(
     val context = LocalContext.current
     val containerBg = appSurface02(isDark)
     val checkTint = remember(context) { Color(DSColors.success(context)) }
-    val items = listOf("Ответ на сообщение", "Цитата на сообщение")
+    val items = listOf("Ответ на сообщение", "Цитировать фрагмент")
     Box(
         modifier = modifier
             .width(250.dp)
