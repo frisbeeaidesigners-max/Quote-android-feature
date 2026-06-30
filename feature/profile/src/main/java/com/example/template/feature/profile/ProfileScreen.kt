@@ -1,7 +1,6 @@
 package com.example.template.feature.profile
 
 import android.graphics.Bitmap
-import android.view.ViewGroup
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.Image
 import androidx.activity.compose.BackHandler
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -52,6 +52,7 @@ import com.example.components.button.ButtonView
 import com.example.components.designsystem.DSIcon
 import com.example.components.designsystem.DSTypography
 import com.example.components.designsystem.toComposeTextStyle
+import com.example.components.segmentedcontrol.SegmentedControlColorScheme
 import com.example.template.core.ui.AppVersion
 import com.example.template.core.ui.LocalAppBrand
 import com.example.template.core.ui.LocalBitmapCache
@@ -60,7 +61,6 @@ import com.example.template.core.ui.LocalLinkRenderEnabled
 import com.example.template.core.ui.LocalQuotePickerStyle
 import com.example.template.core.ui.QuotePickerStyle
 import com.example.template.core.ui.appBasic
-import com.example.components.segmentedcontrol.SegmentedControlView
 import com.example.template.core.ui.hosts.ButtonHost
 import com.example.template.core.ui.theme.avatarColorSchemeForGradient
 import kotlinx.coroutines.Dispatchers
@@ -257,37 +257,21 @@ fun ProfileScreen(viewModel: ProfileViewModel, onClose: () -> Unit = {}, onEdit:
                     val segmentedScheme = remember(brand, isDark) {
                         brand.segmentedControlColorScheme(isDark)
                     }
-                    // Row 1: SegmentedControl
-                    Row(
+                    // Row 1: 4-сегментный контрол. Используем локальный Compose-компонент
+                    // (StyleSegmented ниже), т.к. библиотечный SegmentedControlView
+                    // хардкодит `require(labels.size in 2..3)`. Визуал и цвета — те же,
+                    // что у :components/SegmentedControlView (32dp/9dp/7dp/body5R).
+                    StyleSegmented(
+                        selectedIndex = style.ordinal,
+                        onSelect = { idx ->
+                            styleFlow.value = QuotePickerStyle.values()[idx]
+                        },
+                        scheme = segmentedScheme,
+                        labels = listOf("1", "2", "3", "4"),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        AndroidView(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(32.dp),
-                            factory = { ctx ->
-                                SegmentedControlView(ctx).apply {
-                                    layoutParams = ViewGroup.LayoutParams(
-                                        ViewGroup.LayoutParams.MATCH_PARENT,
-                                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                                    )
-                                }
-                            },
-                            update = { view ->
-                                view.configure(
-                                    labels = listOf("1", "2", "3"),
-                                    selectedIndex = style.ordinal,
-                                    onSelect = { idx ->
-                                        styleFlow.value = QuotePickerStyle.values()[idx]
-                                    },
-                                    colorScheme = segmentedScheme,
-                                )
-                            },
-                        )
-                    }
+                    )
                     // Divider 0.5dp basicColor08
                     Box(
                         modifier = Modifier
@@ -442,5 +426,62 @@ private fun DsIcon(iconName: String, sizeDp: Dp, tint: Color) {
         )
     } else {
         Spacer(modifier = Modifier.size(sizeDp))
+    }
+}
+
+/**
+ * Локальный N-сегментный контрол для Profile (4 варианта picker'а — больше чем
+ * лимит библиотечного SegmentedControlView, который принимает только 2-3 label'а).
+ *
+ * Визуально матчит [com.example.components.segmentedcontrol.SegmentedControlView]:
+ *  - 32dp height, 9dp container radius, 7dp segment radius
+ *  - body5R текст, цвета из переданного [SegmentedControlColorScheme]
+ *  - Активный сегмент имеет fill-фон (без slide-анимации индикатора — снапает мгновенно)
+ *  - Сегменты равной ширины через weight(1f)
+ */
+@Composable
+private fun StyleSegmented(
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit,
+    scheme: SegmentedControlColorScheme,
+    labels: List<String>,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .height(32.dp)
+            .clip(RoundedCornerShape(9.dp))
+            .background(Color(scheme.containerBackground))
+            .padding(2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        labels.forEachIndexed { i, label ->
+            val isActive = i == selectedIndex
+            val segmentInteraction = remember { MutableInteractionSource() }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(7.dp))
+                    .then(
+                        if (isActive)
+                            Modifier.background(Color(scheme.activeSegmentBackground))
+                        else Modifier
+                    )
+                    .clickable(
+                        interactionSource = segmentInteraction,
+                        indication = null,
+                        onClick = { if (i != selectedIndex) onSelect(i) },
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = label,
+                    style = DSTypography.body5R.toComposeTextStyle(),
+                    color = Color(if (isActive) scheme.activeText else scheme.inactiveText),
+                    maxLines = 1,
+                )
+            }
+        }
     }
 }

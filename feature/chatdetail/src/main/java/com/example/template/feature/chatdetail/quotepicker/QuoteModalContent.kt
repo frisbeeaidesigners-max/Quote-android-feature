@@ -72,11 +72,14 @@ fun QuoteModalContent(
     initialEnd: Int,
     draftText: String,
     variant: QuoteVariant,
+    linkRender: Boolean,
     onConfirm: (Int, Int) -> Unit,
     onDismiss: () -> Unit,
     onCancelReply: () -> Unit,
 ) {
     val swipeEnabled = variant == QuoteVariant.MODAL_SWIPE
+    // BUTTONS пилл нет связи с linkRender'ом по геометрии, но кнопки-стрелки — только при ON.
+    val buttonsShowArrows = variant == QuoteVariant.MODAL_BUTTONS && linkRender
     val isDark = LocalIsDark.current
     val brand = LocalAppBrand.current
 
@@ -95,10 +98,12 @@ fun QuoteModalContent(
         )
     }
     var selectedTab by rememberSaveable { mutableStateOf(0) }
-    // STICKY variant — swipe disabled, selectedTab остаётся на 0; AnimatedContent
-    // на tab=1 не триггерится. Force-reset при variant flip (paranoid):
-    LaunchedEffect(variant) {
-        if (variant == QuoteVariant.MODAL_STICKY) selectedTab = 0
+    // STICKY и BUTTONS+OFF: link-tab недоступен — selectedTab форсируется в 0 (paranoid
+    // защита при variant/linkRender flip'е через программный путь).
+    LaunchedEffect(variant, linkRender) {
+        val linkTabReachable = variant == QuoteVariant.MODAL_SWIPE ||
+            (variant == QuoteVariant.MODAL_BUTTONS && linkRender)
+        if (!linkTabReachable) selectedTab = 0
     }
     var snapshotRange by rememberSaveable {
         mutableStateOf(
@@ -206,8 +211,9 @@ fun QuoteModalContent(
         // без внешнего bottom footer'а. Зеркалит первую итерацию Modal'а из sibling
         // android-template-quote @ 4c4036f.
         val useV1StickyHeader = variant == QuoteVariant.MODAL_STICKY
-        // Preview Box corner radius — 24dp для обеих modal-вариантов (V1/V2 dots-shape).
-        val previewCornerRadius = 24.dp
+        // Preview Box corner radius: BUTTONS → 34dp (выраженный pill вокруг floating pill-
+        // хедера), SWIPE и STICKY → 24dp.
+        val previewCornerRadius = if (variant == QuoteVariant.MODAL_BUTTONS) 34.dp else 24.dp
         Box(
             Modifier
                 .fillMaxWidth()
@@ -245,11 +251,14 @@ fun QuoteModalContent(
                 update = { v -> v.configure(patternAsset, patternColorScheme) },
             )
 
-            // SWIPE: контент ограничен 74dp снизу — footer непрозрачный и под него ничего не
-            // лезет. STICKY: footer'а нет (V1 sticky header overlay сверху), контент занимает
-            // всю высоту Box'а.
+            // SWIPE: контент ограничен 74dp снизу — footer непрозрачный, под него ничего не
+            // лезет; bottomContentReserve=16dp.
+            // BUTTONS: floating pill 58dp + 8dp inset = 66dp занимает overlay'ем; контент не
+            // ограничен padding'ом (pill ляжет ПОВЕРХ), но bottomContentReserve=82dp чтобы
+            // бабл по умолчанию был на 16dp выше pill'а.
+            // STICKY: footer'а нет (sticky header overlay сверху); bottomContentReserve=16dp.
             val contentBottomPad = if (variant == QuoteVariant.MODAL_SWIPE) 74.dp else 0.dp
-            val bottomContentReserve = 16.dp
+            val bottomContentReserve = if (variant == QuoteVariant.MODAL_BUTTONS) 82.dp else 16.dp
             AnimatedContent(
                 targetState = selectedTab,
                 transitionSpec = {
@@ -319,14 +328,15 @@ fun QuoteModalContent(
                         snapshotRange = snapshotRange,
                         draftText = draftText,
                         bottomContentReserve = bottomContentReserve,
-                        onBack = null,
+                        onBack = if (variant == QuoteVariant.MODAL_BUTTONS) {
+                            { selectedTab = 0 }
+                        } else null,
                     )
                 }
             }
 
-            // Footer chrome — variant-driven. linkRender не используется (placeholder OFF
-            // для SWIPE и placeholder ON для STICKY реализуем позже — пока обе variant'ы
-            // выглядят одинаково для любого linkRender).
+            // Footer chrome — variant-driven. SWIPE и STICKY: linkRender placeholder
+            // (одинаковый вид ON/OFF — реализуем позже). BUTTONS: linkRender гейтит стрелки.
             when (variant) {
                 QuoteVariant.MODAL_SWIPE -> QuoteModalSwipeFooter(
                     selectedTab = selectedTab,
@@ -342,6 +352,21 @@ fun QuoteModalContent(
                 QuoteVariant.MODAL_STICKY -> QuoteModalStickyHeader(
                     menuState = menuState,
                     modifier = Modifier.align(Alignment.TopCenter),
+                )
+                QuoteVariant.MODAL_BUTTONS -> QuoteModalButtonsHeader(
+                    selectedTab = selectedTab,
+                    menuState = menuState,
+                    onPrev = { selectedTab = 1 - selectedTab },
+                    onNext = { selectedTab = 1 - selectedTab },
+                    showButtons = buttonsShowArrows,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                        .fillMaxWidth()
+                        .height(58.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(appSurface01(isDark))
+                        .padding(8.dp),
                 )
             }
         }
