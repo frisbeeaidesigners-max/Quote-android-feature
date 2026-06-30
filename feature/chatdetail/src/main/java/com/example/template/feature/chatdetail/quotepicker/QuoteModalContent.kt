@@ -391,13 +391,14 @@ fun QuoteModalContent(
         Spacer(Modifier.height(8.dp))
 
         // Popover row — AnimatedContent (QuoteMenu ↔ LinkPopoverCard). По макету — центрировано.
-        // STICKY: фиксируем высоту слота под 3-пунктное меню (3*48 + 2*0.5 = 145dp) — preview
-        // получает детерминированную высоту независимо от текущего menuState. Меню само
-        // выравнивается по верху слота (Box без alignment'а у child'а → top-start).
+        // STICKY: фиксируем высоту слота — preview получает детерминированную высоту независимо
+        // от текущего menuState. С splitApply=true (для STICKY) max-высота меню:
+        //   2-item main (2*48 + 0.5 = 96.5dp) + 4dp gap + apply-card (48dp) = 148.5dp
+        // → используем 150dp с round-up. Меню само выравнивается по верху слота.
         Box(
             Modifier
                 .align(Alignment.CenterHorizontally)
-                .then(if (isSticky) Modifier.height(145.dp) else Modifier)
+                .then(if (isSticky) Modifier.height(150.dp) else Modifier)
                 .pointerInput(Unit) { detectTapGestures { /* consume */ } }
         ) {
             AnimatedContent(
@@ -438,6 +439,7 @@ fun QuoteModalContent(
                             clearSelectionRef.value?.invoke()
                             menuState = QuoteMenuState.INITIAL
                         },
+                        splitApply = isSticky,
                     )
                 } else {
                     QuoteModalLinkPopoverCard(

@@ -59,6 +59,9 @@ private data class MenuItemSpec(
     val onClick: () -> Unit,
 )
 
+private val APPLY_LABEL = "Применить изменения"
+private val APPLY_ICON = "check-outline"
+
 @Composable
 fun QuoteMenu(
     state: QuoteMenuState,
@@ -69,60 +72,83 @@ fun QuoteMenu(
     onBack: () -> Unit,
     onConfirmQuote: () -> Unit,
     onClearQuote: () -> Unit,
+    splitApply: Boolean = false,
 ) {
     val isDark = LocalIsDark.current
     val containerBg = appSurface02(isDark)
 
-    Box(
-        modifier = modifier
-            .width(250.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(containerBg),
-    ) {
-        AnimatedContent(
-            targetState = state,
-            transitionSpec = {
-                val dir = if (targetState.ordinal > initialState.ordinal) 1 else -1
-                (slideInHorizontally(tween(220, easing = FastOutSlowInEasing)) { it * dir } +
-                    fadeIn(tween(120))) togetherWith
-                (slideOutHorizontally(tween(220, easing = FastOutSlowInEasing)) { -it * dir } +
-                    fadeOut(tween(120))) using
-                SizeTransform(clip = false) { _, _ -> tween(220, easing = FastOutSlowInEasing) }
-            },
-            label = "QuoteMenuFsm",
-        ) { current ->
-            val items: List<MenuItemSpec> = when (current) {
-                QuoteMenuState.INITIAL -> listOf(
-                    MenuItemSpec("Выбрать фрагмент", "text-select", onClick = onSelectFragment),
-                    MenuItemSpec("Применить изменения", "check-outline", onClick = onApply),
-                    MenuItemSpec("Отменить ответ", "delete", isDanger = true, onClick = onCancelReply),
-                )
-                QuoteMenuState.INITIAL_WITH_QUOTE -> listOf(
-                    MenuItemSpec("Снять выделение", "quote-clear", onClick = onClearQuote),
-                    MenuItemSpec("Применить изменения", "check-outline", onClick = onApply),
-                    MenuItemSpec("Отменить ответ", "delete", isDanger = true, onClick = onCancelReply),
-                )
-                QuoteMenuState.SELECTING -> listOf(
-                    MenuItemSpec("Назад", "back", onClick = onBack),
-                    MenuItemSpec("Цитировать фрагмент", "quote-create", onClick = onConfirmQuote),
-                )
-                QuoteMenuState.INITIAL_MINIMAL -> listOf(
-                    MenuItemSpec("Применить изменения", "check-outline", onClick = onApply),
-                    MenuItemSpec("Отменить ответ", "delete", isDanger = true, onClick = onCancelReply),
-                )
-            }
-            Column {
-                items.forEachIndexed { idx, item ->
-                    QuoteMenuItem(item)
-                    if (idx < items.lastIndex) {
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .height(0.5.dp)
-                                .background(appBasic(isDark, 0.08f))
-                        )
+    Column(modifier = modifier) {
+        // Основная карта меню — состояния FSM. При splitApply=true пункт «Применить изменения»
+        // отфильтровывается и выносится в отдельную карту ниже.
+        Box(
+            modifier = Modifier
+                .width(250.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(containerBg),
+        ) {
+            AnimatedContent(
+                targetState = state,
+                transitionSpec = {
+                    val dir = if (targetState.ordinal > initialState.ordinal) 1 else -1
+                    (slideInHorizontally(tween(220, easing = FastOutSlowInEasing)) { it * dir } +
+                        fadeIn(tween(120))) togetherWith
+                    (slideOutHorizontally(tween(220, easing = FastOutSlowInEasing)) { -it * dir } +
+                        fadeOut(tween(120))) using
+                    SizeTransform(clip = false) { _, _ -> tween(220, easing = FastOutSlowInEasing) }
+                },
+                label = "QuoteMenuFsm",
+            ) { current ->
+                val allItems: List<MenuItemSpec> = when (current) {
+                    QuoteMenuState.INITIAL -> listOf(
+                        MenuItemSpec("Выбрать фрагмент", "text-select", onClick = onSelectFragment),
+                        MenuItemSpec(APPLY_LABEL, APPLY_ICON, onClick = onApply),
+                        MenuItemSpec("Отменить ответ", "delete", isDanger = true, onClick = onCancelReply),
+                    )
+                    QuoteMenuState.INITIAL_WITH_QUOTE -> listOf(
+                        MenuItemSpec("Снять выделение", "quote-clear", onClick = onClearQuote),
+                        MenuItemSpec(APPLY_LABEL, APPLY_ICON, onClick = onApply),
+                        MenuItemSpec("Отменить ответ", "delete", isDanger = true, onClick = onCancelReply),
+                    )
+                    QuoteMenuState.SELECTING -> listOf(
+                        MenuItemSpec("Назад", "back", onClick = onBack),
+                        MenuItemSpec("Цитировать фрагмент", "quote-create", onClick = onConfirmQuote),
+                    )
+                    QuoteMenuState.INITIAL_MINIMAL -> listOf(
+                        MenuItemSpec(APPLY_LABEL, APPLY_ICON, onClick = onApply),
+                        MenuItemSpec("Отменить ответ", "delete", isDanger = true, onClick = onCancelReply),
+                    )
+                }
+                val items = if (splitApply) allItems.filterNot { it.label == APPLY_LABEL } else allItems
+                Column {
+                    items.forEachIndexed { idx, item ->
+                        QuoteMenuItem(item)
+                        if (idx < items.lastIndex) {
+                            Box(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(0.5.dp)
+                                    .background(appBasic(isDark, 0.08f))
+                            )
+                        }
                     }
                 }
+            }
+        }
+        // splitApply=true: «Применить изменения» — отдельная карта 4dp ниже основной, тот же
+        // визуал (250dp ширина, 14dp радиус, appSurface02 фон). Показывается только когда
+        // в текущем FSM-состоянии есть пункт apply (SELECTING его не имеет).
+        val stateHasApply = state == QuoteMenuState.INITIAL ||
+            state == QuoteMenuState.INITIAL_WITH_QUOTE ||
+            state == QuoteMenuState.INITIAL_MINIMAL
+        if (splitApply && stateHasApply) {
+            Spacer(Modifier.height(4.dp))
+            Box(
+                modifier = Modifier
+                    .width(250.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(containerBg),
+            ) {
+                QuoteMenuItem(MenuItemSpec(APPLY_LABEL, APPLY_ICON, onClick = onApply))
             }
         }
     }
