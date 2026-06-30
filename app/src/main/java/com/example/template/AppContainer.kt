@@ -5,7 +5,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import com.example.template.core.data.MessengerRepository
 import com.example.template.core.data.MockRepositoryImpl
 import com.example.template.core.ui.AssetBitmapCache
-import com.example.template.core.ui.QuotePickerVariant
+import com.example.template.core.ui.QuotePickerStyle
 import com.example.template.core.ui.hosts.VoicePlaybackController
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -19,11 +19,20 @@ class AppContainer(context: Context) {
     val voicePlaybackController: VoicePlaybackController = VoicePlaybackController()
 
     /**
-     * Dev-toggle для A/B-теста V4 vs V5 fullscreen quote-picker'а.
-     * In-process only — переключение делается в ProfileScreen, не персистится.
+     * Стиль quote-picker'а. SegmentedControl в Profile переключает между FULLSCREEN
+     * (inline overlay в Activity-окне) и MODAL_DOTS/MODAL_BUTTONS (Compose Dialog).
+     * In-process only — не персистится между запусками.
      */
-    val quotePickerVariant: MutableStateFlow<QuotePickerVariant> =
-        MutableStateFlow(QuotePickerVariant.V4)
+    val quotePickerStyle: MutableStateFlow<QuotePickerStyle> =
+        MutableStateFlow(QuotePickerStyle.FULLSCREEN)
+
+    /**
+     * Видимость link-вкладки в picker'е (Switch «Рендер ссылок» в Profile).
+     * Default ON — на FULLSCREEN это значит V5-layout (с internal SegmentedControl «Ответ/Ссылка»),
+     * на MODAL_* — dots/buttons + link-tab включены.
+     */
+    val linkRenderEnabled: MutableStateFlow<Boolean> =
+        MutableStateFlow(true)
 
     init {
         // Прогрев в фоне: декод 14 PNG-аватарок раньше блокировал Application.onCreate и

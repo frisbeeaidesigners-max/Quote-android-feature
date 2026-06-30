@@ -4,27 +4,27 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import com.example.template.core.model.Message
 import com.example.template.core.model.Persona
-import com.example.template.core.ui.QuotePickerVariant
 
 /**
- * V3 (Fullscreen) quote picker. Рендерится как inline Compose-overlay в MainActivity ВНЕ
- * AppScaffold (по тому же pattern что [ContextMenuOverlay][com.example.template.feature.chatdetail.ContextMenuOverlay]),
- * НЕ через `androidx.compose.ui.window.Dialog`.
+ * Внутренний enum для дисптача FULLSCREEN-ветки. Не торчит наружу из feature/chatdetail
+ * (state-модель `:core:ui` использует только `QuotePickerStyle.FULLSCREEN`).
+ */
+internal enum class FullScreenVariant { V4, V5 }
+
+/**
+ * V3 (Fullscreen) quote picker — inline Compose-overlay в MainActivity ВНЕ AppScaffold.
+ * См. подробный комментарий в коммите feature/quote-v3 о причине ОТКАЗА от Compose Dialog
+ * (MIUI: statusBarColor/navigationBarColor не применяются в собственном Window Dialog'а).
  *
- * Почему не Dialog: Compose Dialog с usePlatformDefaultWidth=false + decorFitsSystemWindows=false
- * создаёт собственное Window, чьи `statusBarColor`/`navigationBarColor`/`isAppearanceLight*Bars`
- * на ряде ROM'ов (MIUI) не применяются — иконки часов / wifi оказываются дефолтными (light)
- * и не видны на light theme, а Dialog рисуется поверх области nav-bar. Activity-окно уже
- * настроено в `MainActivity.onCreate` (enableEdgeToEdge + isStatusBarContrastEnforced=false +
- * isAppearanceLight*Bars=!isDark) → если рендерить overlay в этом же окне, всё работает.
+ * BackHandler установлен ВНУТРИ контента — он имеет доступ к clearSelectionRef для
+ * синхронного дисмисса handle-popup'ов.
  *
- * Контент ([QuoteFullScreenContent]) сам делает `.fillMaxSize().background(appSurface01)
- * .statusBarsPadding().navigationBarsPadding()` — то есть фон тянется edge-to-edge,
- * а контент инсетится внутри безопасной области.
+ * @param linkRenderEnabled true → V5-layout (с SegmentedControl «Ответ/Ссылка»);
+ *                          false → V4-layout (без link-tab).
  */
 @Composable
 fun QuotePickerFullScreen(
-    variant: QuotePickerVariant,
+    linkRenderEnabled: Boolean,
     message: Message,
     senderPersona: Persona?,
     senderAvatar: Bitmap?,
@@ -36,10 +36,9 @@ fun QuotePickerFullScreen(
     onCancelReply: () -> Unit,
     draftText: String = "",
 ) {
-    // BackHandler установлен ВНУТРИ контента (QuoteFullScreenContent / QuoteV5FullScreenContent) —
-    // он имеет доступ к clearSelectionRef для синхронного дисмисса handle-popup'ов.
-    when (variant) {
-        QuotePickerVariant.V4 -> QuoteFullScreenContent(
+    val innerVariant = if (linkRenderEnabled) FullScreenVariant.V5 else FullScreenVariant.V4
+    when (innerVariant) {
+        FullScreenVariant.V4 -> QuoteFullScreenContent(
             message = message,
             senderPersona = senderPersona,
             senderAvatar = senderAvatar,
@@ -50,7 +49,7 @@ fun QuotePickerFullScreen(
             onDismiss = onDismiss,
             onCancelReply = onCancelReply,
         )
-        QuotePickerVariant.V5 -> QuoteV5FullScreenContent(
+        FullScreenVariant.V5 -> QuoteV5FullScreenContent(
             message = message,
             senderPersona = senderPersona,
             senderAvatar = senderAvatar,

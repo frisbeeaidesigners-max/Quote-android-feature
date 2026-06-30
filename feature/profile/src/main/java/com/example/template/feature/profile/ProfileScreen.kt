@@ -55,8 +55,7 @@ import com.example.template.core.ui.AppVersion
 import com.example.template.core.ui.LocalAppBrand
 import com.example.template.core.ui.LocalBitmapCache
 import com.example.template.core.ui.LocalIsDark
-import com.example.template.core.ui.LocalQuotePickerVariant
-import com.example.template.core.ui.QuotePickerVariant
+import com.example.template.core.ui.LocalLinkRenderEnabled
 import com.example.template.core.ui.appBasic
 import com.example.template.core.ui.hosts.ButtonHost
 import com.example.template.core.ui.theme.avatarColorSchemeForGradient
@@ -247,8 +246,8 @@ fun ProfileScreen(viewModel: ProfileViewModel, onClose: () -> Unit = {}, onEdit:
                 }
 
                 ProfileCard(groupBg) {
-                    val variantFlow = LocalQuotePickerVariant.current
-                    val variant by variantFlow.collectAsState()
+                    val linkRenderFlow = LocalLinkRenderEnabled.current
+                    val linkRender by linkRenderFlow.collectAsState()
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -258,17 +257,14 @@ fun ProfileScreen(viewModel: ProfileViewModel, onClose: () -> Unit = {}, onEdit:
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Полноэкранный пикер V5",
+                            text = "Полноэкранный пикер V5",  // лейбл сменим в Task 2
                             style = DSTypography.body1R.toComposeTextStyle(),
                             color = appBasic(isDark, 0.9f),
                             modifier = Modifier.weight(1f),
                         )
                         Switch(
-                            checked = variant == QuotePickerVariant.V5,
-                            onCheckedChange = {
-                                variantFlow.value =
-                                    if (it) QuotePickerVariant.V5 else QuotePickerVariant.V4
-                            },
+                            checked = linkRender,
+                            onCheckedChange = { linkRenderFlow.value = it },
                         )
                     }
                 }

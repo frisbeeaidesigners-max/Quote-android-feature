@@ -3,8 +3,12 @@ package com.example.template.core.ui
 import androidx.compose.runtime.staticCompositionLocalOf
 import kotlinx.coroutines.flow.MutableStateFlow
 
-enum class QuotePickerVariant { V4, V5 }
+enum class QuotePickerStyle { FULLSCREEN, MODAL_DOTS, MODAL_BUTTONS }
 
-val LocalQuotePickerVariant = staticCompositionLocalOf<MutableStateFlow<QuotePickerVariant>> {
-    error("LocalQuotePickerVariant not provided")
+val LocalQuotePickerStyle = staticCompositionLocalOf<MutableStateFlow<QuotePickerStyle>> {
+    error("LocalQuotePickerStyle not provided")
+}
+
+val LocalLinkRenderEnabled = staticCompositionLocalOf<MutableStateFlow<Boolean>> {
+    error("LocalLinkRenderEnabled not provided")
 }
