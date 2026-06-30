@@ -464,7 +464,9 @@ private fun QuoteModalSliderDots(
 ) {
     val isDark = LocalIsDark.current
     val brand = LocalAppBrand.current
-    val activeColor = remember(brand, isDark) { Color(brand.accentColor(isDark)) }
+    // themeAccent: brand-accent на light, near-white (~85% alpha) на dark — отличается от
+    // accentColor который остаётся брендовым в обеих темах.
+    val activeColor = remember(brand, isDark) { Color(brand.themeAccent(isDark)) }
     val inactiveColor = appBasic(isDark, 0.4f)
     Row(
         modifier = modifier,
