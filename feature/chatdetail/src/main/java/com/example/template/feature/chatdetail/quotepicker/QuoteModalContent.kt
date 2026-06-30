@@ -4,7 +4,9 @@ import android.graphics.Bitmap
 import android.view.ViewGroup
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -14,6 +16,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -49,6 +53,7 @@ import com.example.template.core.model.Persona
 import com.example.template.core.model.QuoteVariant
 import com.example.template.core.ui.LocalAppBrand
 import com.example.template.core.ui.LocalIsDark
+import com.example.template.core.ui.appBasic
 import com.example.template.core.ui.appSurface01
 import kotlinx.coroutines.flow.first
 
@@ -324,6 +329,17 @@ fun QuoteModalContent(
 
         Spacer(Modifier.height(8.dp))
 
+        // Variant 4 (MODAL_BUTTONS): индикатор активной вкладки — 2 точки между preview Box
+        // и QuoteMenu. Active: 8×4dp accent, inactive: 4×4dp basic 40%. Ширина и цвет
+        // анимированы 220ms FastOutSlowInEasing — спека Figma 8929:1029571.
+        if (variant == QuoteVariant.MODAL_BUTTONS) {
+            QuoteModalSliderDots(
+                selectedTab = selectedTab,
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+            )
+            Spacer(Modifier.height(8.dp))
+        }
+
         // Popover row — AnimatedContent (QuoteMenu ↔ LinkPopoverCard). По макету — центрировано.
         // STICKY: фиксируем высоту слота — preview получает детерминированную высоту независимо
         // от текущего menuState. С splitApply=true (для STICKY) max-высота меню:
@@ -431,5 +447,49 @@ fun QuoteModalContent(
             }
         }
     }
+    }
+}
+
+/**
+ * Slider-dots индикатор для MODAL_BUTTONS — 2 точки между preview Box и QuoteMenu,
+ * показывают какая вкладка активна. Active: 8×4dp, brand.accentColor. Inactive: 4×4dp,
+ * basicColor 40%. Gap 4dp. Анимация ширины и цвета — 220ms FastOutSlowInEasing.
+ *
+ * Спека Figma 8929:1029571.
+ */
+@Composable
+private fun QuoteModalSliderDots(
+    selectedTab: Int,
+    modifier: Modifier = Modifier,
+) {
+    val isDark = LocalIsDark.current
+    val brand = LocalAppBrand.current
+    val activeColor = remember(brand, isDark) { Color(brand.accentColor(isDark)) }
+    val inactiveColor = appBasic(isDark, 0.4f)
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        repeat(2) { i ->
+            val active = i == selectedTab
+            val width by animateDpAsState(
+                targetValue = if (active) 8.dp else 4.dp,
+                animationSpec = tween(220, easing = FastOutSlowInEasing),
+                label = "dotWidth",
+            )
+            val color by animateColorAsState(
+                targetValue = if (active) activeColor else inactiveColor,
+                animationSpec = tween(220, easing = FastOutSlowInEasing),
+                label = "dotColor",
+            )
+            Box(
+                modifier = Modifier
+                    .width(width)
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(color),
+            )
+        }
     }
 }
