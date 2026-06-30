@@ -6,7 +6,7 @@ import com.example.template.core.model.Message
 import com.example.template.core.model.Persona
 
 /**
- * Внутренний enum для дисптача FULLSCREEN-ветки. Не торчит наружу из feature/chatdetail
+ * Внутренний enum для диспатча FULLSCREEN-ветки. Не торчит наружу из feature/chatdetail
  * (state-модель `:core:ui` использует только `QuotePickerStyle.FULLSCREEN`).
  */
 internal enum class FullScreenVariant { V4, V5 }

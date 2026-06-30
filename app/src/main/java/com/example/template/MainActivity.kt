@@ -295,14 +295,27 @@ class MainActivity : ComponentActivity() {
                             val linkRenderFlow = LocalLinkRenderEnabled.current
                             val linkRender by linkRenderFlow.collectAsState()
 
-                            // IME-hide override применяется только когда picker = FULLSCREEN (inline overlay
-                            // в Activity-окне). Modal-варианты — Dialog с собственным Window и
-                            // FLAG_ALT_FOCUSABLE_IM, которые сохраняют IME-state для MessagePanel под ним.
+                            // IME-z-order всегда выше app — Compose-overlay не может визуально
+                            // перекрыть системную клаву. Поэтому на open прячем IME, на close
+                            // восстанавливаем если она БЫЛА открыта (стандартный pattern Telegram
+                            // / WhatsApp / Signal). Фокус EditText'а у MessagePanel сохраняется,
+                            // .show(ime()) сам вернёт клаву к нему.
+                            //
+                            // IME-hide override применяется только когда picker = FULLSCREEN (inline
+                            // overlay в Activity-окне). Modal-варианты — Dialog с собственным Window
+                            // и FLAG_ALT_FOCUSABLE_IM, которые сохраняют IME-state для MessagePanel
+                            // под ним.
                             DisposableEffect(pickerVisible, style) {
                                 if (pickerVisible && style == QuotePickerStyle.FULLSCREEN) {
                                     val controller = WindowInsetsControllerCompat(window, window.decorView)
                                     val wasImeVisible = ViewCompat.getRootWindowInsets(window.decorView)
                                         ?.isVisible(WindowInsetsCompat.Type.ime()) ?: false
+                                    // Меняем softInputMode на STATE_ALWAYS_HIDDEN, сохраняя
+                                    // оригинальные ADJUST_RESIZE-биты. Иначе на resume window
+                                    // получает focus и Android спонтанно поднимает IME для
+                                    // focused EditText'а (MessagePanel или SelectableEditText).
+                                    // STATE_ALWAYS_HIDDEN говорит «не показывать IME ни при
+                                    // каком focus-event на этом окне», что и убирает flash.
                                     val originalSoftInputMode = window.attributes.softInputMode
                                     val adjustBits = originalSoftInputMode and
                                         WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST
@@ -311,6 +324,8 @@ class MainActivity : ComponentActivity() {
                                             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
                                     )
                                     controller.hide(WindowInsetsCompat.Type.ime())
+                                    // Belt-and-suspenders: на случай если softInputMode на каком-
+                                    // то ROM'е не отрабатывает, ON_RESUME observer прячет повторно.
                                     val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
                                         if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
                                             controller.hide(WindowInsetsCompat.Type.ime())
@@ -319,6 +334,8 @@ class MainActivity : ComponentActivity() {
                                     lifecycle.addObserver(observer)
                                     onDispose {
                                         lifecycle.removeObserver(observer)
+                                        // Восстанавливаем softInputMode ДО show(ime()) — иначе
+                                        // ALWAYS_HIDDEN может перебить программный show.
                                         window.setSoftInputMode(originalSoftInputMode)
                                         if (wasImeVisible) controller.show(WindowInsetsCompat.Type.ime())
                                     }
