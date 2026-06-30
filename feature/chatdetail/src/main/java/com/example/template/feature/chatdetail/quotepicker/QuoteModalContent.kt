@@ -211,7 +211,7 @@ fun QuoteModalContent(
     // SWIPE/BUTTONS сохраняют исходный визуал (44dp top padding, фикс 564dp preview).
     val isSticky = variant == QuoteVariant.MODAL_STICKY
     val columnInsetMod = if (isSticky)
-        Modifier.statusBarsPadding().navigationBarsPadding()
+        Modifier.statusBarsPadding().navigationBarsPadding().padding(bottom = 16.dp)
     else
         Modifier.padding(top = 44.dp)
     Column(
