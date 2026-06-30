@@ -98,11 +98,11 @@ fun QuoteModalContent(
         )
     }
     var selectedTab by rememberSaveable { mutableStateOf(0) }
-    // STICKY и BUTTONS+OFF: link-tab недоступен — selectedTab форсируется в 0 (paranoid
-    // защита при variant/linkRender flip'е через программный путь).
+    // link-tab достижим: SWIPE (всегда), BUTTONS+ON (стрелки), STICKY+ON (segmented control
+    // ниже меню). Если flip variant/linkRender уберёт доступ — paranoid reset на tab=0.
     LaunchedEffect(variant, linkRender) {
         val linkTabReachable = variant == QuoteVariant.MODAL_SWIPE ||
-            (variant == QuoteVariant.MODAL_BUTTONS && linkRender)
+            ((variant == QuoteVariant.MODAL_BUTTONS || variant == QuoteVariant.MODAL_STICKY) && linkRender)
         if (!linkTabReachable) selectedTab = 0
     }
     var snapshotRange by rememberSaveable {
@@ -350,6 +350,7 @@ fun QuoteModalContent(
                         .padding(horizontal = 8.dp, vertical = 8.dp),
                 )
                 QuoteVariant.MODAL_STICKY -> QuoteModalStickyHeader(
+                    selectedTab = selectedTab,
                     menuState = menuState,
                     modifier = Modifier.align(Alignment.TopCenter),
                 )
@@ -427,5 +428,20 @@ fun QuoteModalContent(
             }
         }
 
+        // STICKY + linkRender=ON: ниже QuoteMenu появляется segmented control «Ответ /
+        // Ссылка» для переключения tab'а (свайпа в STICKY нет, кнопок в pill'е нет).
+        if (variant == QuoteVariant.MODAL_STICKY && linkRender) {
+            Spacer(Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .pointerInput(Unit) { detectTapGestures { /* consume */ } },
+            ) {
+                QuoteModalReplyLinkSegmented(
+                    selectedTab = selectedTab,
+                    onSelect = { selectedTab = it },
+                )
+            }
+        }
     }
 }
