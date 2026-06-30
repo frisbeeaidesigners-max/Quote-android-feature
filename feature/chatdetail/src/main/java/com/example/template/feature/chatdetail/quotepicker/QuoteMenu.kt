@@ -45,7 +45,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.components.designsystem.DSColors
 import com.example.components.designsystem.DSIcon
+import com.example.template.core.ui.LocalAppBrand
 import com.example.template.core.ui.LocalIsDark
 import com.example.template.core.ui.appBasic
 import com.example.template.core.ui.appSurface02
@@ -216,5 +218,137 @@ private fun QuoteMenuIcon(iconName: String, tint: Color) {
         )
     } else {
         Spacer(Modifier.size(24.dp))
+    }
+}
+
+/**
+ * Variant 2 (MODAL_STICKY_2) main menu — двухкнопочный choice «Ответ на сообщение /
+ * Цитата на сообщение» с checkmark-индикатором на активном пункте. Заменяет FSM-меню
+ * со слайд-анимациями. Тапы перенаправляются в onSelect, который дёргает FSM наружу
+ * (clearSelection / selectAll).
+ *
+ * Спека Figma 8954:1123959.
+ */
+@Composable
+internal fun QuoteMenuChoice(
+    activeIndex: Int,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val isDark = LocalIsDark.current
+    val context = LocalContext.current
+    val containerBg = appSurface02(isDark)
+    val checkTint = remember(context) { Color(DSColors.success(context)) }
+    val items = listOf("Ответ на сообщение", "Цитата на сообщение")
+    Box(
+        modifier = modifier
+            .width(250.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(containerBg),
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            items.forEachIndexed { i, label ->
+                QuoteMenuChoiceItem(
+                    label = label,
+                    showCheck = i == activeIndex,
+                    checkTint = checkTint,
+                    onClick = { onSelect(i) },
+                )
+                if (i < items.lastIndex) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(0.5.dp)
+                            .background(appBasic(isDark, 0.08f))
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun QuoteMenuChoiceItem(
+    label: String,
+    showCheck: Boolean,
+    checkTint: Color,
+    onClick: () -> Unit,
+) {
+    val isDark = LocalIsDark.current
+    val labelColor = appBasic(isDark, 0.9f)
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val itemBg = if (isPressed) appBasic(isDark, 0.08f) else Color.Transparent
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .background(itemBg)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+            )
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = label,
+            color = labelColor,
+            fontSize = 15.sp,
+            lineHeight = 20.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
+        )
+        Box(
+            modifier = Modifier.size(24.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (showCheck) QuoteMenuIcon("done", checkTint)
+        }
+    }
+}
+
+/**
+ * «Применить» card — отдельная карта 250×48dp для variant 2 (MODAL_STICKY_2) под обеими
+ * вкладками (Ответ / Ссылка). Текст центрирован, цвет = brand accent (themefirst/accent/
+ * text-or-icon). Без иконки.
+ *
+ * Спека Figma 8954:1123960.
+ */
+@Composable
+internal fun QuoteMenuApply(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val isDark = LocalIsDark.current
+    val brand = LocalAppBrand.current
+    val containerBg = appSurface02(isDark)
+    val accentText = Color(brand.accentColor(isDark))
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val bg = if (isPressed) appBasic(isDark, 0.08f) else containerBg
+    Box(
+        modifier = modifier
+            .width(250.dp)
+            .height(48.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(bg)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = "Применить",
+            color = accentText,
+            fontSize = 15.sp,
+            lineHeight = 20.sp,
+            maxLines = 1,
+        )
     }
 }

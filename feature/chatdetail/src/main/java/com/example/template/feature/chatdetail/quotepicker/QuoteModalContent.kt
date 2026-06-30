@@ -344,18 +344,51 @@ fun QuoteModalContent(
                 },
                 label = "modalPopoverSwap",
             ) { tab ->
-                if (tab == 0) {
+                val isSticky2 = variant == QuoteVariant.MODAL_STICKY_2
+                val applyClick: () -> Unit = {
+                    val range = selectionRef.value?.invoke()
+                    clearSelectionRef.value?.invoke()
+                    onConfirm(range?.first ?: 0, range?.last ?: 0)
+                }
+                if (isSticky2) {
+                    // Variant 2: новая структура меню — 2-item Choice (Ответ / Цитата) с
+                    // checkmark на активном, под ним отдельная карта «Применить» (accent,
+                    // центр). Tab=0 показывает Choice, tab=1 — LinkPopover. «Применить»
+                    // одинаковая под обеими вкладками.
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        if (tab == 0) {
+                            val activeIdx = if (menuState == QuoteMenuState.INITIAL_WITH_QUOTE ||
+                                menuState == QuoteMenuState.SELECTING) 1 else 0
+                            QuoteMenuChoice(
+                                activeIndex = activeIdx,
+                                onSelect = { idx ->
+                                    if (idx == 0) {
+                                        clearSelectionRef.value?.invoke()
+                                        menuState = if (hasSelectableText) QuoteMenuState.INITIAL
+                                            else QuoteMenuState.INITIAL_MINIMAL
+                                    } else if (hasSelectableText) {
+                                        selectAllRef.value?.invoke()
+                                        menuState = QuoteMenuState.SELECTING
+                                    }
+                                },
+                            )
+                        } else {
+                            QuoteModalLinkPopoverCard(
+                                selectedIndex = linkPopoverSelection,
+                                onSelect = { linkPopoverSelection = it },
+                            )
+                        }
+                        Spacer(Modifier.height(4.dp))
+                        QuoteMenuApply(onClick = applyClick)
+                    }
+                } else if (tab == 0) {
                     QuoteMenu(
                         state = menuState,
                         onSelectFragment = {
                             selectAllRef.value?.invoke()
                             menuState = QuoteMenuState.SELECTING
                         },
-                        onApply = {
-                            val range = selectionRef.value?.invoke()
-                            clearSelectionRef.value?.invoke()
-                            onConfirm(range?.first ?: 0, range?.last ?: 0)
-                        },
+                        onApply = applyClick,
                         onCancelReply = {
                             clearSelectionRef.value?.invoke()
                             onCancelReply()
@@ -364,11 +397,7 @@ fun QuoteModalContent(
                             clearSelectionRef.value?.invoke()
                             menuState = QuoteMenuState.INITIAL
                         },
-                        onConfirmQuote = {
-                            val range = selectionRef.value?.invoke()
-                            clearSelectionRef.value?.invoke()
-                            onConfirm(range?.first ?: 0, range?.last ?: 0)
-                        },
+                        onConfirmQuote = applyClick,
                         onClearQuote = {
                             clearSelectionRef.value?.invoke()
                             menuState = QuoteMenuState.INITIAL
