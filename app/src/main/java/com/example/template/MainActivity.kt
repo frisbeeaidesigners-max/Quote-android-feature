@@ -51,7 +51,9 @@ import com.example.template.core.ui.QuotePickerStyle
 import com.example.template.feature.chatdetail.ChatDetailScreen
 import com.example.template.feature.chatdetail.ChatDetailViewModel
 import com.example.template.feature.chatdetail.ContextMenuOverlay
+import com.example.template.core.model.Message
 import com.example.template.feature.chatdetail.quotepicker.QuotePickerFullScreen
+import com.example.template.feature.chatdetail.quotepicker.QuotePickerModalHost
 import com.example.template.feature.profile.ProfileEditScreen
 import com.example.template.feature.profile.ProfileScreen
 import com.example.template.feature.profile.ProfileViewModel
@@ -390,8 +392,29 @@ class MainActivity : ComponentActivity() {
                                             }
                                         }
                                         QuotePickerStyle.MODAL_DOTS, QuotePickerStyle.MODAL_BUTTONS -> {
-                                            // TODO Task 4: подключить QuotePickerModalHost(style, linkRender, ...)
-                                            // На данный момент Modal-стили выбираются в Profile, но picker не открывается.
+                                            // Modal — Compose Dialog, тапы перехватываются в собственном Window;
+                                            // tap-barrier Box и softInputMode-override НЕ применяются (см. DisposableEffect
+                                            // выше, гейт на style == FULLSCREEN).
+                                            QuotePickerModalHost(
+                                                style = style,
+                                                linkRender = linkRender,
+                                                message = originalMessage,
+                                                senderPersona = senderPersona,
+                                                senderAvatar = senderAvatar,
+                                                isMine = originalMessage.isMine,
+                                                fullText = (originalMessage as? Message.Text)?.body
+                                                    ?: (originalMessage as? Message.Media)?.caption.orEmpty(),
+                                                initialStart = cv.quoteStart ?: 0,
+                                                initialEnd = cv.quoteEnd ?: 0,
+                                                draftText = draftText,
+                                                onConfirm = { start, end ->
+                                                    if (start == end) chatVm.clearQuote()
+                                                    else chatVm.setQuote(start, end)
+                                                    chatVm.dismissQuotePicker()
+                                                },
+                                                onDismiss = { chatVm.dismissQuotePicker() },
+                                                onCancelReply = { chatVm.dismissReplyContext() },
+                                            )
                                         }
                                     }
                                 }

@@ -105,6 +105,14 @@ internal fun replyPreviewText(message: Message): String = when (message) {
     is Message.System -> "Системное сообщение"
 }
 
+internal fun extractQuote(message: Message, start: Int, end: Int): String {
+    val body = (message as? Message.Text)?.body ?: return replyPreviewText(message)
+    if (body.isEmpty()) return replyPreviewText(message)
+    val s = start.coerceIn(0, body.length)
+    val e = end.coerceIn(s, body.length)
+    return if (s < e) body.substring(s, e) else replyPreviewText(message)
+}
+
 // Bundled Roboto TTF из :components — на MIUI FontWeight.Medium без явного font fallback'ится
 // на Mi Sans Regular, и Medium-вес визуально не виден.
 internal val FullScreenRobotoFontFamily: FontFamily = FontFamily(

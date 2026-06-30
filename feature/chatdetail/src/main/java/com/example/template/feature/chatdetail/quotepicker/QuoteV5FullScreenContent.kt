@@ -692,14 +692,6 @@ private fun BottomStripLink(
     }
 }
 
-private fun extractQuote(message: Message, start: Int, end: Int): String {
-    val body = (message as? Message.Text)?.body ?: return replyPreviewText(message)
-    if (body.isEmpty()) return replyPreviewText(message)
-    val s = start.coerceIn(0, body.length)
-    val e = end.coerceIn(s, body.length)
-    return if (s < e) body.substring(s, e) else replyPreviewText(message)
-}
-
 @Composable
 private fun LinkBubbleOverlay(
     message: Message,
