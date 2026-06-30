@@ -203,14 +203,14 @@ fun QuoteModalContent(
         horizontalAlignment = Alignment.Start,
     ) {
         val handleOverflowPx = with(density) { 24.dp.roundToPx() }
-        // Preview Box (Header c Title/Description/Dots — внутри, прижат к низу).
-        // DOTS — 24dp (V1 sticky-header OFF + V2 dots ON), BUTTONS — 34dp (более выраженный
-        // pill-стиль вокруг floating pill-хедера).
-        val previewCornerRadius = if (variant == QuoteVariant.MODAL_DOTS) 24.dp else 34.dp
-        // V1 sticky-header режим: DOTS + linkRender OFF → sticky header INSIDE preview Box,
-        // без внешнего bottom footer'а. Зеркалит первую итерацию Modal'а из sibling
-        // android-template-quote @ 4c4036f.
-        val useV1StickyHeader = !linkRender && variant == QuoteVariant.MODAL_DOTS
+        // V1 sticky-header режим: linkRender OFF → sticky header INSIDE preview Box, без
+        // внешнего bottom footer'а — единый вид для DOTS и BUTTONS. Зеркалит первую
+        // итерацию Modal'а из sibling android-template-quote @ 4c4036f.
+        val useV1StickyHeader = !linkRender
+        // Preview Box corner radius:
+        //  - DOTS+ON, любой OFF → 24dp (V1/V2 dots-style)
+        //  - BUTTONS+ON → 34dp (более выраженный pill вокруг floating pill-хедера)
+        val previewCornerRadius = if (variant == QuoteVariant.MODAL_DOTS || useV1StickyHeader) 24.dp else 34.dp
         Box(
             Modifier
                 .fillMaxWidth()
@@ -253,7 +253,13 @@ fun QuoteModalContent(
             // бабл по умолчанию сидел 16dp выше пилла, ниже в content-Column'е добавим Spacer
             // высотой [bottomContentReserve] = 66 (пилл с inset) + 16 = 82dp.
             val contentBottomPad = if (linkRender && variant == QuoteVariant.MODAL_DOTS) 74.dp else 0.dp
-            val bottomContentReserve = if (linkRender && variant == QuoteVariant.MODAL_DOTS) 16.dp else 82.dp
+            // V1 sticky-header режим — bottomReserve уменьшен с 82 до 16dp (нет нижнего pill'а
+            // / footer'а, под которым нужно резервировать место).
+            val bottomContentReserve = when {
+                useV1StickyHeader -> 16.dp
+                linkRender && variant == QuoteVariant.MODAL_DOTS -> 16.dp
+                else -> 82.dp
+            }
             AnimatedContent(
                 targetState = selectedTab,
                 transitionSpec = {
@@ -359,23 +365,12 @@ fun QuoteModalContent(
                             .padding(8.dp),
                     )
                 }
-            } else if (useV1StickyHeader) {
-                // DOTS + OFF — V1 sticky header INSIDE preview Box (TopCenter), без bottom footer'а.
+            } else {
+                // OFF — V1 sticky header INSIDE preview Box (TopCenter), без bottom footer'а.
+                // Единый вид для DOTS и BUTTONS — отличие между ними остаётся только при ON.
                 QuoteModalStickyHeader(
                     menuState = menuState,
                     modifier = Modifier.align(Alignment.TopCenter),
-                )
-            } else {
-                // BUTTONS + OFF — bottom-aligned StaticFooter (visually идентично BUTTONS+ON
-                // минус кнопки-стрелки).
-                QuoteModalStaticFooter(
-                    menuState = menuState,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .height(74.dp)
-                        .background(appSurface01(isDark))
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
                 )
             }
         }

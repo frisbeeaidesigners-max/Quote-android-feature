@@ -158,54 +158,12 @@ private fun descriptionFor(tab: Int): String = when (tab) {
 }
 
 /**
- * Static footer для linkRender=OFF состояния Modal-picker'а. Только Title/Description
- * вертикально центрированы внутри 82dp reserve area, без dots/buttons/свайпа.
- *
- * Title зависит от menuState (миррор sibling SwipeFooter tab=0 логики):
- *  - INITIAL/INITIAL_MINIMAL → «Ответ на сообщение»
- *  - INITIAL_WITH_QUOTE/SELECTING → «Ответ на цитату»
- * Description константный: «Вы можете процитировать фрагмент сообщения».
- */
-@Composable
-internal fun QuoteModalStaticFooter(
-    menuState: QuoteMenuState,
-    modifier: Modifier = Modifier,
-) {
-    val isDark = LocalIsDark.current
-    val title = when (menuState) {
-        QuoteMenuState.INITIAL_WITH_QUOTE, QuoteMenuState.SELECTING -> "Ответ на цитату"
-        else -> "Ответ на сообщение"
-    }
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        Text(
-            text = title,
-            color = appBasic(isDark, 0.9f),
-            fontFamily = RobotoFontFamilySwipe,
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
-            textAlign = TextAlign.Center,
-        )
-        Text(
-            text = "Вы можете процитировать фрагмент сообщения",
-            color = appBasic(isDark, 0.5f),
-            fontFamily = RobotoFontFamilySwipe,
-            fontWeight = FontWeight.Normal,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
-/**
  * V1 sticky header — Title+Description блок поверх верха preview Box'а (как в первой
- * итерации Modal'а в android-template-quote @ 4c4036f). Используется только в состоянии
- * `MODAL_DOTS + linkRender=OFF` — внешнего bottom footer'а нет, header лежит внутри
- * preview-card'а на appSurface01 фоне. BackgroundPatternView и QuoteBubblePreview под
- * ним остаются скроллящимися; 60dp top-spacer в content-Column'е резервирует место.
+ * итерации Modal'а в android-template-quote @ 4c4036f). Используется в режиме
+ * `linkRender = OFF` для обоих вариантов (MODAL_DOTS / MODAL_BUTTONS) — внешнего bottom
+ * footer'а нет, header лежит внутри preview-card'а на appSurface01 фоне. BackgroundPatternView
+ * и QuoteBubblePreview под ним остаются скроллящимися; 60dp top-spacer в content-Column'е
+ * резервирует место.
  */
 @Composable
 internal fun QuoteModalStickyHeader(
