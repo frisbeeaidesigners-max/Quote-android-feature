@@ -337,9 +337,20 @@ fun QuoteModalContent(
                             .background(appSurface01(isDark))
                             .padding(horizontal = 8.dp, vertical = 8.dp),
                     )
-                    QuoteVariant.MODAL_BUTTONS -> Box(Modifier.fillMaxWidth()) {
-                        // TODO Task 6: QuoteModalButtonsHeader(...)
-                    }
+                    QuoteVariant.MODAL_BUTTONS -> QuoteModalButtonsHeader(
+                        selectedTab = selectedTab,
+                        menuState = menuState,
+                        onPrev = { selectedTab = 1 - selectedTab },
+                        onNext = { selectedTab = 1 - selectedTab },
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                            .fillMaxWidth()
+                            .height(58.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(appSurface01(isDark))
+                            .padding(8.dp),
+                    )
                 }
             } else {
                 QuoteModalStaticFooter(
