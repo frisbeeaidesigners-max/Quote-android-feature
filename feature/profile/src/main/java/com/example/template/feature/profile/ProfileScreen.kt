@@ -1,6 +1,7 @@
 package com.example.template.feature.profile
 
 import android.graphics.Bitmap
+import android.view.ViewGroup
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.Image
 import androidx.activity.compose.BackHandler
@@ -56,7 +57,10 @@ import com.example.template.core.ui.LocalAppBrand
 import com.example.template.core.ui.LocalBitmapCache
 import com.example.template.core.ui.LocalIsDark
 import com.example.template.core.ui.LocalLinkRenderEnabled
+import com.example.template.core.ui.LocalQuotePickerStyle
+import com.example.template.core.ui.QuotePickerStyle
 import com.example.template.core.ui.appBasic
+import com.example.components.segmentedcontrol.SegmentedControlView
 import com.example.template.core.ui.hosts.ButtonHost
 import com.example.template.core.ui.theme.avatarColorSchemeForGradient
 import kotlinx.coroutines.Dispatchers
@@ -246,8 +250,53 @@ fun ProfileScreen(viewModel: ProfileViewModel, onClose: () -> Unit = {}, onEdit:
                 }
 
                 ProfileCard(groupBg) {
+                    val styleFlow = LocalQuotePickerStyle.current
+                    val style by styleFlow.collectAsState()
                     val linkRenderFlow = LocalLinkRenderEnabled.current
                     val linkRender by linkRenderFlow.collectAsState()
+                    val segmentedScheme = remember(brand, isDark) {
+                        brand.segmentedControlColorScheme(isDark)
+                    }
+                    // Row 1: SegmentedControl
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        AndroidView(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(32.dp),
+                            factory = { ctx ->
+                                SegmentedControlView(ctx).apply {
+                                    layoutParams = ViewGroup.LayoutParams(
+                                        ViewGroup.LayoutParams.MATCH_PARENT,
+                                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                                    )
+                                }
+                            },
+                            update = { view ->
+                                view.configure(
+                                    labels = listOf("Полноэкранный", "Точки", "Кнопки"),
+                                    selectedIndex = style.ordinal,
+                                    onSelect = { idx ->
+                                        styleFlow.value = QuotePickerStyle.values()[idx]
+                                    },
+                                    colorScheme = segmentedScheme,
+                                )
+                            },
+                        )
+                    }
+                    // Divider 0.5dp basicColor08
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .height(0.5.dp)
+                            .background(appBasic(isDark, 0.08f)),
+                    )
+                    // Row 2: Switch «Рендер ссылок»
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -257,7 +306,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, onClose: () -> Unit = {}, onEdit:
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Полноэкранный пикер V5",  // лейбл сменим в Task 2
+                            text = "Рендер ссылок",
                             style = DSTypography.body1R.toComposeTextStyle(),
                             color = appBasic(isDark, 0.9f),
                             modifier = Modifier.weight(1f),
