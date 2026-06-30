@@ -199,11 +199,15 @@ fun QuoteModalContent(
         Modifier
     }
 
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .then(swipeModifier),
+    ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 44.dp, start = 12.dp, end = 12.dp)
-            .then(swipeModifier),
+            .padding(top = 44.dp, start = 12.dp, end = 12.dp),
         horizontalAlignment = Alignment.Start,
     ) {
         val handleOverflowPx = with(density) { 24.dp.roundToPx() }
@@ -214,15 +218,11 @@ fun QuoteModalContent(
         // Preview Box corner radius: BUTTONS → 34dp (выраженный pill вокруг floating pill-
         // хедера), SWIPE и STICKY → 24dp.
         val previewCornerRadius = if (variant == QuoteVariant.MODAL_BUTTONS) 34.dp else 24.dp
-        // Preview Box height: для STICKY+ON ниже QuoteMenu появляется segmented control
-        // («Ответ / Ссылка») — без уменьшения высоты segmented уходит под навбар. Остальные
-        // варианты используют полную высоту 564dp.
-        val previewHeight = if (variant == QuoteVariant.MODAL_STICKY && linkRender) 460.dp else 564.dp
         Box(
             Modifier
                 .fillMaxWidth()
                 .widthIn(max = 351.dp)
-                .height(previewHeight)
+                .height(564.dp)
                 .clip(RoundedCornerShape(previewCornerRadius))
                 .background(previewBg)
                 .onGloballyPositioned { coords ->
@@ -432,13 +432,16 @@ fun QuoteModalContent(
             }
         }
 
-        // STICKY + linkRender=ON: ниже QuoteMenu появляется segmented control «Ответ /
-        // Ссылка» для переключения tab'а (свайпа в STICKY нет, кнопок в pill'е нет).
+    }
+        // STICKY + linkRender=ON: segmented control «Ответ / Ссылка» absolute-pinned ко дну
+        // окна (54dp от низа — спека Figma 8843:877920). Позиция НЕ зависит от высоты
+        // QuoteMenu, поэтому при высоком меню popover может визуально перекрывать сегмент-
+        // контрол сверху — это by design.
         if (variant == QuoteVariant.MODAL_STICKY && linkRender) {
-            Spacer(Modifier.height(8.dp))
             Box(
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 54.dp)
                     .pointerInput(Unit) { detectTapGestures { /* consume */ } },
             ) {
                 QuoteModalReplyLinkSegmented(
