@@ -58,6 +58,7 @@ import com.example.template.core.model.Persona
 import com.example.template.core.model.QuoteVariant
 import com.example.template.core.ui.LocalAppBrand
 import com.example.template.core.ui.LocalIsDark
+import com.example.template.core.ui.appSurface01
 import kotlinx.coroutines.flow.first
 
 @Composable
@@ -322,20 +323,34 @@ fun QuoteModalContent(
                 }
             }
 
-            // Footer chrome — портируется в Task 5 (SwipeFooter/StaticFooter) и Task 6 (ButtonsHeader).
+            // Footer chrome — SwipeFooter/StaticFooter (Task 5), ButtonsHeader (Task 6).
             if (linkRender) {
                 when (variant) {
-                    QuoteVariant.MODAL_DOTS -> Box(Modifier.fillMaxWidth().padding(top = 16.dp)) {
-                        // TODO Task 5: QuoteModalSwipeFooter(...)
-                    }
+                    QuoteVariant.MODAL_DOTS -> QuoteModalSwipeFooter(
+                        selectedTab = selectedTab,
+                        menuState = menuState,
+                        dragOffsetPx = { dragOffset.value },
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .height(74.dp)
+                            .background(appSurface01(isDark))
+                            .padding(horizontal = 8.dp, vertical = 8.dp),
+                    )
                     QuoteVariant.MODAL_BUTTONS -> Box(Modifier.fillMaxWidth()) {
                         // TODO Task 6: QuoteModalButtonsHeader(...)
                     }
                 }
             } else {
-                Box(Modifier.fillMaxWidth().padding(top = 16.dp)) {
-                    // TODO Task 5: QuoteModalStaticFooter(menuState = menuState)
-                }
+                QuoteModalStaticFooter(
+                    menuState = menuState,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(74.dp)
+                        .background(appSurface01(isDark))
+                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                )
             }
         }
 
