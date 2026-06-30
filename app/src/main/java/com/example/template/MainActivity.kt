@@ -391,7 +391,7 @@ class MainActivity : ComponentActivity() {
                                                 )
                                             }
                                         }
-                                        QuotePickerStyle.MODAL_SWIPE,
+                                        QuotePickerStyle.MODAL_STICKY_2,
                                         QuotePickerStyle.MODAL_STICKY,
                                         QuotePickerStyle.MODAL_BUTTONS -> {
                                             // Modal — Compose Dialog, тапы перехватываются в собственном Window;

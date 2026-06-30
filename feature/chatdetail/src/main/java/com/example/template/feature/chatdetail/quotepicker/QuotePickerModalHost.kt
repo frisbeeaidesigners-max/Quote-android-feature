@@ -10,7 +10,7 @@ import com.example.template.core.ui.QuotePickerStyle
 /**
  * Хост Modal-picker'а. Маппит [QuotePickerStyle] (из :core:ui — наружу торчит для
  * Profile/AppContainer) в [QuoteVariant] (из :core:model — внутри Modal-кода).
- * Принимает только MODAL_SWIPE/MODAL_STICKY/MODAL_BUTTONS; FULLSCREEN-диспатч в
+ * Принимает только MODAL_STICKY_2/MODAL_STICKY/MODAL_BUTTONS; FULLSCREEN-диспатч в
  * [QuotePickerFullScreen].
  */
 @Composable
@@ -30,7 +30,7 @@ fun QuotePickerModalHost(
     onCancelReply: () -> Unit,
 ) {
     val variant = when (style) {
-        QuotePickerStyle.MODAL_SWIPE -> QuoteVariant.MODAL_SWIPE
+        QuotePickerStyle.MODAL_STICKY_2 -> QuoteVariant.MODAL_STICKY_2
         QuotePickerStyle.MODAL_STICKY -> QuoteVariant.MODAL_STICKY
         QuotePickerStyle.MODAL_BUTTONS -> QuoteVariant.MODAL_BUTTONS
         QuotePickerStyle.FULLSCREEN -> error(

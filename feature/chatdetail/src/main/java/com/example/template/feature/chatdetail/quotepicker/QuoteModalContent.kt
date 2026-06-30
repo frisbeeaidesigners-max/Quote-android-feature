@@ -4,19 +4,13 @@ import android.graphics.Bitmap
 import android.view.ViewGroup
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,8 +30,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -47,13 +39,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import kotlin.math.absoluteValue
-import kotlinx.coroutines.launch
 import com.example.components.backgroundpattern.BackgroundPatternView
 import com.example.template.core.model.Message
 import com.example.template.core.model.Persona
@@ -79,7 +68,6 @@ fun QuoteModalContent(
     onDismiss: () -> Unit,
     onCancelReply: () -> Unit,
 ) {
-    val swipeEnabled = variant == QuoteVariant.MODAL_SWIPE
     // BUTTONS пилл нет связи с linkRender'ом по геометрии, но кнопки-стрелки — только при ON.
     val buttonsShowArrows = variant == QuoteVariant.MODAL_BUTTONS && linkRender
     val isDark = LocalIsDark.current
@@ -100,11 +88,12 @@ fun QuoteModalContent(
         )
     }
     var selectedTab by rememberSaveable { mutableStateOf(0) }
-    // link-tab достижим: SWIPE (всегда), BUTTONS+ON (стрелки), STICKY+ON (segmented control
+    // link-tab достижим: BUTTONS+ON (стрелки), STICKY+ON или STICKY_2+ON (segmented control
     // ниже меню). Если flip variant/linkRender уберёт доступ — paranoid reset на tab=0.
     LaunchedEffect(variant, linkRender) {
-        val linkTabReachable = variant == QuoteVariant.MODAL_SWIPE ||
-            ((variant == QuoteVariant.MODAL_BUTTONS || variant == QuoteVariant.MODAL_STICKY) && linkRender)
+        val linkTabReachable = (variant == QuoteVariant.MODAL_BUTTONS ||
+            variant == QuoteVariant.MODAL_STICKY ||
+            variant == QuoteVariant.MODAL_STICKY_2) && linkRender
         if (!linkTabReachable) selectedTab = 0
     }
     var snapshotRange by rememberSaveable {
@@ -152,64 +141,15 @@ fun QuoteModalContent(
 
     val previewHandleClipRect = remember { mutableStateOf<android.graphics.Rect?>(null) }
     val previewMenuClipRect = remember { mutableStateOf<android.graphics.Rect?>(null) }
-
-    // Drag-state поднят сюда из SwipeFooter, чтобы свайп ловился по всему модалу,
-    // а не только по footer'у. SwipeFooter получает dragOffset через () → Float
-    // и сдвигает title визуально.
-    val coroutineScope = rememberCoroutineScope()
     val density = LocalDensity.current
-    val dragOffset = remember { Animatable(0f) }
-    var modalWidthPx by remember { mutableStateOf(0) }
-    val velocityThresholdPxPerS = with(density) { 600.dp.toPx() }
-    val commitDistanceRatio = 0.20f
-    val currentTab by rememberUpdatedState(selectedTab)
-
-    val draggableState = rememberDraggableState { delta ->
-        coroutineScope.launch {
-            val raw = dragOffset.value + delta
-            val clamped = if (currentTab == 0) raw.coerceAtMost(0f) else raw.coerceAtLeast(0f)
-            dragOffset.snapTo(clamped)
-        }
-    }
-
-    val swipeModifier = if (swipeEnabled) {
-        Modifier
-            .onSizeChanged { modalWidthPx = it.width }
-            .draggable(
-                orientation = Orientation.Horizontal,
-                state = draggableState,
-                onDragStopped = { velocity ->
-                    val w = modalWidthPx
-                    val current = dragOffset.value
-                    val distanceCommit = w > 0 && current.absoluteValue > w * commitDistanceRatio
-                    val sameDirection = (velocity > 0f && current > 0f) || (velocity < 0f && current < 0f)
-                    val velocityCommit = sameDirection &&
-                        velocity.absoluteValue > velocityThresholdPxPerS &&
-                        current.absoluteValue > 0f
-                    if (distanceCommit || velocityCommit) {
-                        // selectedTab меняется ДО анимации — AnimatedContent (title) запустит
-                        // свой slide-out из текущей позиции; параллельно dragOffset плавно идёт
-                        // к 0, чтобы движение продолжалось без «прыжка» от drag-точки.
-                        selectedTab = 1 - currentTab
-                        dragOffset.animateTo(0f, tween(220, easing = FastOutSlowInEasing))
-                    } else {
-                        dragOffset.animateTo(0f, spring(stiffness = Spring.StiffnessMediumLow))
-                    }
-                },
-            )
-    } else {
-        Modifier
-    }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .then(swipeModifier),
+        modifier = Modifier.fillMaxSize(),
     ) {
     // STICKY-вариант 3 использует системные insets и flexible preview Box (weight(1f)),
     // чтобы preview поднимался под status bar, а menu+segmented прижимались к nav bar.
     // SWIPE/BUTTONS сохраняют исходный визуал (44dp top padding, фикс 564dp preview).
-    val isSticky = variant == QuoteVariant.MODAL_STICKY
+    val isSticky = variant == QuoteVariant.MODAL_STICKY || variant == QuoteVariant.MODAL_STICKY_2
     val columnInsetMod = if (isSticky)
         Modifier.statusBarsPadding().navigationBarsPadding().padding(bottom = 16.dp)
     else
@@ -273,7 +213,10 @@ fun QuoteModalContent(
             // ограничен padding'ом (pill ляжет ПОВЕРХ), но bottomContentReserve=82dp чтобы
             // бабл по умолчанию был на 16dp выше pill'а.
             // STICKY: footer'а нет (sticky header overlay сверху); bottomContentReserve=16dp.
-            val contentBottomPad = if (variant == QuoteVariant.MODAL_SWIPE) 74.dp else 0.dp
+            // SwipeFooter удалён — больше нет варианта с footer'ом внутри preview Box'а.
+            // STICKY/STICKY_2: sticky-header overlay сверху, content full-height.
+            // BUTTONS: pill overlay снизу через bottomContentReserve в Spacer'е под Bubble.
+            val contentBottomPad = 0.dp
             val bottomContentReserve = if (variant == QuoteVariant.MODAL_BUTTONS) 82.dp else 16.dp
             AnimatedContent(
                 targetState = selectedTab,
@@ -351,21 +294,12 @@ fun QuoteModalContent(
                 }
             }
 
-            // Footer chrome — variant-driven. SWIPE и STICKY: linkRender placeholder
-            // (одинаковый вид ON/OFF — реализуем позже). BUTTONS: linkRender гейтит стрелки.
+            // Footer chrome — variant-driven. STICKY и STICKY_2: одинаковый sticky-header
+            // overlay (STICKY_2 — копия STICKY для последующих модификаций). BUTTONS: pill
+            // снизу, linkRender гейтит видимость стрелок-кнопок.
             when (variant) {
-                QuoteVariant.MODAL_SWIPE -> QuoteModalSwipeFooter(
-                    selectedTab = selectedTab,
-                    menuState = menuState,
-                    dragOffsetPx = { dragOffset.value },
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .height(74.dp)
-                        .background(appSurface01(isDark))
-                        .padding(horizontal = 8.dp, vertical = 8.dp),
-                )
-                QuoteVariant.MODAL_STICKY -> QuoteModalStickyHeader(
+                QuoteVariant.MODAL_STICKY,
+                QuoteVariant.MODAL_STICKY_2 -> QuoteModalStickyHeader(
                     selectedTab = selectedTab,
                     menuState = menuState,
                     modifier = Modifier.align(Alignment.TopCenter),
@@ -454,7 +388,7 @@ fun QuoteModalContent(
         // Column'а (Column'у nav-bar inset уже применён выше). 16dp gap от menu сверху,
         // segmented сидит на нижнем краю safe area. preview Box(weight=1f) растягивается
         // вверх, толкая menu и segmented к низу.
-        if (variant == QuoteVariant.MODAL_STICKY && linkRender) {
+        if (isSticky && linkRender) {
             Spacer(Modifier.height(16.dp))
             Box(
                 modifier = Modifier
