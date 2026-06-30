@@ -24,7 +24,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -204,25 +206,35 @@ fun QuoteModalContent(
             .fillMaxSize()
             .then(swipeModifier),
     ) {
+    // STICKY-вариант 3 использует системные insets и flexible preview Box (weight(1f)),
+    // чтобы preview поднимался под status bar, а menu+segmented прижимались к nav bar.
+    // SWIPE/BUTTONS сохраняют исходный визуал (44dp top padding, фикс 564dp preview).
+    val isSticky = variant == QuoteVariant.MODAL_STICKY
+    val columnInsetMod = if (isSticky)
+        Modifier.statusBarsPadding().navigationBarsPadding()
+    else
+        Modifier.padding(top = 44.dp)
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 44.dp, start = 12.dp, end = 12.dp),
+            .then(columnInsetMod)
+            .padding(start = 12.dp, end = 12.dp),
         horizontalAlignment = Alignment.Start,
     ) {
         val handleOverflowPx = with(density) { 24.dp.roundToPx() }
         // V1 sticky-header режим — variant == MODAL_STICKY: sticky header INSIDE preview Box,
         // без внешнего bottom footer'а. Зеркалит первую итерацию Modal'а из sibling
         // android-template-quote @ 4c4036f.
-        val useV1StickyHeader = variant == QuoteVariant.MODAL_STICKY
+        val useV1StickyHeader = isSticky
         // Preview Box corner radius: BUTTONS → 34dp (выраженный pill вокруг floating pill-
         // хедера), SWIPE и STICKY → 24dp.
         val previewCornerRadius = if (variant == QuoteVariant.MODAL_BUTTONS) 34.dp else 24.dp
+        // Preview Box размер: STICKY — weight(1f) чтобы поднять под status bar, остальные —
+        // фиксированные 564dp.
         Box(
-            Modifier
+            (if (isSticky) Modifier.weight(1f) else Modifier.height(564.dp))
                 .fillMaxWidth()
                 .widthIn(max = 351.dp)
-                .height(564.dp)
                 .clip(RoundedCornerShape(previewCornerRadius))
                 .background(previewBg)
                 .onGloballyPositioned { coords ->
@@ -379,9 +391,13 @@ fun QuoteModalContent(
         Spacer(Modifier.height(8.dp))
 
         // Popover row — AnimatedContent (QuoteMenu ↔ LinkPopoverCard). По макету — центрировано.
+        // STICKY: фиксируем высоту слота под 3-пунктное меню (3*48 + 2*0.5 = 145dp) — preview
+        // получает детерминированную высоту независимо от текущего menuState. Меню само
+        // выравнивается по верху слота (Box без alignment'а у child'а → top-start).
         Box(
             Modifier
                 .align(Alignment.CenterHorizontally)
+                .then(if (isSticky) Modifier.height(145.dp) else Modifier)
                 .pointerInput(Unit) { detectTapGestures { /* consume */ } }
         ) {
             AnimatedContent(
@@ -432,16 +448,15 @@ fun QuoteModalContent(
             }
         }
 
-    }
-        // STICKY + linkRender=ON: segmented control «Ответ / Ссылка» absolute-pinned ко дну
-        // окна (54dp от низа — спека Figma 8843:877920). Позиция НЕ зависит от высоты
-        // QuoteMenu, поэтому при высоком меню popover может визуально перекрывать сегмент-
-        // контрол сверху — это by design.
+        // STICKY + linkRender=ON: segmented control «Ответ / Ссылка» — последний child
+        // Column'а (Column'у nav-bar inset уже применён выше). 16dp gap от menu сверху,
+        // segmented сидит на нижнем краю safe area. preview Box(weight=1f) растягивается
+        // вверх, толкая menu и segmented к низу.
         if (variant == QuoteVariant.MODAL_STICKY && linkRender) {
+            Spacer(Modifier.height(16.dp))
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 54.dp)
+                    .align(Alignment.CenterHorizontally)
                     .pointerInput(Unit) { detectTapGestures { /* consume */ } },
             ) {
                 QuoteModalReplyLinkSegmented(
@@ -450,5 +465,6 @@ fun QuoteModalContent(
                 )
             }
         }
+    }
     }
 }
