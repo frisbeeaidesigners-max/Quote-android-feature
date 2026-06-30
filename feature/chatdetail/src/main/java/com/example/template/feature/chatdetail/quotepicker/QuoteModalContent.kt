@@ -72,12 +72,11 @@ fun QuoteModalContent(
     initialEnd: Int,
     draftText: String,
     variant: QuoteVariant,
-    linkRender: Boolean,    // ← НОВЫЙ параметр
     onConfirm: (Int, Int) -> Unit,
     onDismiss: () -> Unit,
     onCancelReply: () -> Unit,
 ) {
-    val swipeEnabled = linkRender && variant == QuoteVariant.MODAL_DOTS
+    val swipeEnabled = variant == QuoteVariant.MODAL_SWIPE
     val isDark = LocalIsDark.current
     val brand = LocalAppBrand.current
 
@@ -96,10 +95,10 @@ fun QuoteModalContent(
         )
     }
     var selectedTab by rememberSaveable { mutableStateOf(0) }
-    // linkRender OFF → tab=0 принудительно. Defensive guard (Profile взаимоисключителен
-    // с открытым picker'ом, но если флаг flip'нется через программный путь — снепаем).
-    LaunchedEffect(linkRender) {
-        if (!linkRender) selectedTab = 0
+    // STICKY variant — swipe disabled, selectedTab остаётся на 0; AnimatedContent
+    // на tab=1 не триггерится. Force-reset при variant flip (paranoid):
+    LaunchedEffect(variant) {
+        if (variant == QuoteVariant.MODAL_STICKY) selectedTab = 0
     }
     var snapshotRange by rememberSaveable {
         mutableStateOf(
@@ -203,14 +202,12 @@ fun QuoteModalContent(
         horizontalAlignment = Alignment.Start,
     ) {
         val handleOverflowPx = with(density) { 24.dp.roundToPx() }
-        // V1 sticky-header режим — только DOTS + linkRender=OFF: sticky header INSIDE preview
-        // Box, без внешнего bottom footer'а. Зеркалит первую итерацию Modal'а из sibling
-        // android-template-quote @ 4c4036f. BUTTONS+OFF использует тот же pill что BUTTONS+ON,
-        // но без стрелок-кнопок — см. ButtonsHeader(showButtons=false) ниже.
-        val useV1StickyHeader = !linkRender && variant == QuoteVariant.MODAL_DOTS
-        // Preview Box corner radius: DOTS → 24dp, BUTTONS → 34dp (более выраженный pill вокруг
-        // floating pill-хедера). От linkRender не зависит.
-        val previewCornerRadius = if (variant == QuoteVariant.MODAL_DOTS) 24.dp else 34.dp
+        // V1 sticky-header режим — variant == MODAL_STICKY: sticky header INSIDE preview Box,
+        // без внешнего bottom footer'а. Зеркалит первую итерацию Modal'а из sibling
+        // android-template-quote @ 4c4036f.
+        val useV1StickyHeader = variant == QuoteVariant.MODAL_STICKY
+        // Preview Box corner radius — 24dp для обеих modal-вариантов (V1/V2 dots-shape).
+        val previewCornerRadius = 24.dp
         Box(
             Modifier
                 .fillMaxWidth()
@@ -248,19 +245,11 @@ fun QuoteModalContent(
                 update = { v -> v.configure(patternAsset, patternColorScheme) },
             )
 
-            // V1: контент ограничен 74dp снизу — footer непрозрачный и под него ничего не лезет.
-            // V2: контент занимает весь preview-Box, пилл рендерится z-overlay'ем поверх. Чтобы
-            // бабл по умолчанию сидел 16dp выше пилла, ниже в content-Column'е добавим Spacer
-            // высотой [bottomContentReserve] = 66 (пилл с inset) + 16 = 82dp.
-            val contentBottomPad = if (linkRender && variant == QuoteVariant.MODAL_DOTS) 74.dp else 0.dp
-            // V1 sticky-header режим (DOTS+OFF) — bottomReserve 16dp (нет нижнего pill'а).
-            // BUTTONS (ON или OFF) — 82dp под floating pill'ом (даже без стрелок pill остаётся).
-            // DOTS+ON — 16dp (footer внутри Box'а через contentBottomPad).
-            val bottomContentReserve = when {
-                useV1StickyHeader -> 16.dp
-                variant == QuoteVariant.MODAL_DOTS -> 16.dp
-                else -> 82.dp
-            }
+            // SWIPE: контент ограничен 74dp снизу — footer непрозрачный и под него ничего не
+            // лезет. STICKY: footer'а нет (V1 sticky header overlay сверху), контент занимает
+            // всю высоту Box'а.
+            val contentBottomPad = if (variant == QuoteVariant.MODAL_SWIPE) 74.dp else 0.dp
+            val bottomContentReserve = 16.dp
             AnimatedContent(
                 targetState = selectedTab,
                 transitionSpec = {
@@ -330,63 +319,29 @@ fun QuoteModalContent(
                         snapshotRange = snapshotRange,
                         draftText = draftText,
                         bottomContentReserve = bottomContentReserve,
-                        onBack = if (variant == QuoteVariant.MODAL_BUTTONS) {
-                            { selectedTab = 0 }
-                        } else null,
+                        onBack = null,
                     )
                 }
             }
 
-            // Footer chrome — SwipeFooter/StaticFooter (Task 5), ButtonsHeader (Task 6).
-            if (linkRender) {
-                when (variant) {
-                    QuoteVariant.MODAL_DOTS -> QuoteModalSwipeFooter(
-                        selectedTab = selectedTab,
-                        menuState = menuState,
-                        dragOffsetPx = { dragOffset.value },
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .fillMaxWidth()
-                            .height(74.dp)
-                            .background(appSurface01(isDark))
-                            .padding(horizontal = 8.dp, vertical = 8.dp),
-                    )
-                    QuoteVariant.MODAL_BUTTONS -> QuoteModalButtonsHeader(
-                        selectedTab = selectedTab,
-                        menuState = menuState,
-                        onPrev = { selectedTab = 1 - selectedTab },
-                        onNext = { selectedTab = 1 - selectedTab },
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                            .fillMaxWidth()
-                            .height(58.dp)
-                            .clip(RoundedCornerShape(50))
-                            .background(appSurface01(isDark))
-                            .padding(8.dp),
-                    )
-                }
-            } else when (variant) {
-                // DOTS+OFF — V1 sticky header INSIDE preview Box (TopCenter), без bottom footer'а.
-                QuoteVariant.MODAL_DOTS -> QuoteModalStickyHeader(
-                    menuState = menuState,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                )
-                // BUTTONS+OFF — тот же floating pill что BUTTONS+ON, но без стрелок-кнопок.
-                QuoteVariant.MODAL_BUTTONS -> QuoteModalButtonsHeader(
+            // Footer chrome — variant-driven. linkRender не используется (placeholder OFF
+            // для SWIPE и placeholder ON для STICKY реализуем позже — пока обе variant'ы
+            // выглядят одинаково для любого linkRender).
+            when (variant) {
+                QuoteVariant.MODAL_SWIPE -> QuoteModalSwipeFooter(
                     selectedTab = selectedTab,
                     menuState = menuState,
-                    onPrev = {},
-                    onNext = {},
-                    showButtons = false,
+                    dragOffsetPx = { dragOffset.value },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                         .fillMaxWidth()
-                        .height(58.dp)
-                        .clip(RoundedCornerShape(50))
+                        .height(74.dp)
                         .background(appSurface01(isDark))
-                        .padding(8.dp),
+                        .padding(horizontal = 8.dp, vertical = 8.dp),
+                )
+                QuoteVariant.MODAL_STICKY -> QuoteModalStickyHeader(
+                    menuState = menuState,
+                    modifier = Modifier.align(Alignment.TopCenter),
                 )
             }
         }

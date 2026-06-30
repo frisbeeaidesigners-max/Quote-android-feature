@@ -391,13 +391,12 @@ class MainActivity : ComponentActivity() {
                                                 )
                                             }
                                         }
-                                        QuotePickerStyle.MODAL_DOTS, QuotePickerStyle.MODAL_BUTTONS -> {
+                                        QuotePickerStyle.MODAL_SWIPE, QuotePickerStyle.MODAL_STICKY -> {
                                             // Modal — Compose Dialog, тапы перехватываются в собственном Window;
                                             // tap-barrier Box и softInputMode-override НЕ применяются (см. DisposableEffect
                                             // выше, гейт на style == FULLSCREEN).
                                             QuotePickerModalHost(
                                                 style = style,
-                                                linkRender = linkRender,
                                                 message = originalMessage,
                                                 senderPersona = senderPersona,
                                                 senderAvatar = senderAvatar,

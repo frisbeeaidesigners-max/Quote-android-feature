@@ -160,7 +160,7 @@ private fun descriptionFor(tab: Int): String = when (tab) {
 /**
  * V1 sticky header — Title+Description блок поверх верха preview Box'а (как в первой
  * итерации Modal'а в android-template-quote @ 4c4036f). Используется в режиме
- * `linkRender = OFF` для обоих вариантов (MODAL_DOTS / MODAL_BUTTONS) — внешнего bottom
+ * `MODAL_STICKY` варианте — внешнего bottom
  * footer'а нет, header лежит внутри preview-card'а на appSurface01 фоне. BackgroundPatternView
  * и QuoteBubblePreview под ним остаются скроллящимися; 60dp top-spacer в content-Column'е
  * резервирует место.

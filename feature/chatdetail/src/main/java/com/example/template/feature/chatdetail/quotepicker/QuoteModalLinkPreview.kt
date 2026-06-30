@@ -146,9 +146,8 @@ internal fun QuoteModalLinkPreview(
             Spacer(Modifier.height(bottomContentReserve))
         }
 
-        // V2 (MODAL_BUTTONS): кнопка-back, прижата к левому краю бабла с 6dp gap'ом
-        // и 28dp от низа. MY-бабл имеет marginStart=56dp, так что 6dp слева + 32dp ширина =
-        // padding start=18dp от контейнера.
+        // Optional back-button (передаётся, если вариант picker'а не имеет своего back-механизма
+        // — сейчас не используется, но сигнатура осталась для будущего расширения).
         if (onBack != null) {
             BackIconButton(
                 onClick = onBack,

@@ -10,12 +10,11 @@ import com.example.template.core.ui.QuotePickerStyle
 /**
  * Хост Modal-picker'а. Маппит [QuotePickerStyle] (из :core:ui — наружу торчит для
  * Profile/AppContainer) в [QuoteVariant] (из :core:model — внутри Modal-кода).
- * Принимает только MODAL_DOTS/MODAL_BUTTONS; FULLSCREEN-диспатч в [QuotePickerFullScreen].
+ * Принимает только MODAL_SWIPE/MODAL_STICKY; FULLSCREEN-диспатч в [QuotePickerFullScreen].
  */
 @Composable
 fun QuotePickerModalHost(
     style: QuotePickerStyle,
-    linkRender: Boolean,
     message: Message,
     senderPersona: Persona?,
     senderAvatar: Bitmap?,
@@ -29,8 +28,8 @@ fun QuotePickerModalHost(
     onCancelReply: () -> Unit,
 ) {
     val variant = when (style) {
-        QuotePickerStyle.MODAL_DOTS -> QuoteVariant.MODAL_DOTS
-        QuotePickerStyle.MODAL_BUTTONS -> QuoteVariant.MODAL_BUTTONS
+        QuotePickerStyle.MODAL_SWIPE -> QuoteVariant.MODAL_SWIPE
+        QuotePickerStyle.MODAL_STICKY -> QuoteVariant.MODAL_STICKY
         QuotePickerStyle.FULLSCREEN -> error(
             "QuotePickerModalHost called with FULLSCREEN style; use QuotePickerFullScreen instead"
         )
@@ -45,7 +44,6 @@ fun QuotePickerModalHost(
         initialEnd = initialEnd,
         draftText = draftText,
         variant = variant,
-        linkRender = linkRender,
         onConfirm = onConfirm,
         onDismiss = onDismiss,
         onCancelReply = onCancelReply,

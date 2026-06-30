@@ -20,7 +20,7 @@ class AppContainer(context: Context) {
 
     /**
      * Стиль quote-picker'а. SegmentedControl в Profile переключает между FULLSCREEN
-     * (inline overlay в Activity-окне) и MODAL_DOTS/MODAL_BUTTONS (Compose Dialog).
+     * (inline overlay в Activity-окне) и MODAL_SWIPE/MODAL_STICKY (Compose Dialog).
      * In-process only — не персистится между запусками.
      */
     val quotePickerStyle: MutableStateFlow<QuotePickerStyle> =
@@ -29,7 +29,7 @@ class AppContainer(context: Context) {
     /**
      * Видимость link-вкладки в picker'е (Switch «Рендер ссылок» в Profile).
      * Default ON — на FULLSCREEN это значит V5-layout (с internal SegmentedControl «Ответ/Ссылка»),
-     * на MODAL_* — dots/buttons + link-tab включены.
+     * на MODAL_SWIPE/MODAL_STICKY currently не влияет (placeholder — будут реализованы позже).
      */
     val linkRenderEnabled: MutableStateFlow<Boolean> =
         MutableStateFlow(true)
