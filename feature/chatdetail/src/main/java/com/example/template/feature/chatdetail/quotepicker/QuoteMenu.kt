@@ -58,6 +58,7 @@ private data class MenuItemSpec(
     val label: String,
     val iconName: String,
     val isDanger: Boolean = false,
+    val showIcon: Boolean = true,
     val onClick: () -> Unit,
 )
 
@@ -136,22 +137,15 @@ fun QuoteMenu(
                 }
             }
         }
-        // splitApply=true: «Применить изменения» — отдельная карта 4dp ниже основной, тот же
-        // визуал (250dp ширина, 14dp радиус, appSurface02 фон). Показывается только когда
-        // в текущем FSM-состоянии есть пункт apply (SELECTING его не имеет).
+        // splitApply=true: «Применить изменения» — отдельная карта 4dp ниже основной (без
+        // иконки). Показывается только когда в текущем FSM-состоянии есть apply (SELECTING
+        // его не имеет).
         val stateHasApply = state == QuoteMenuState.INITIAL ||
             state == QuoteMenuState.INITIAL_WITH_QUOTE ||
             state == QuoteMenuState.INITIAL_MINIMAL
         if (splitApply && stateHasApply) {
             Spacer(Modifier.height(4.dp))
-            Box(
-                modifier = Modifier
-                    .width(250.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(containerBg),
-            ) {
-                QuoteMenuItem(MenuItemSpec(APPLY_LABEL, APPLY_ICON, onClick = onApply))
-            }
+            QuoteMenuApplyChangesCard(onClick = onApply)
         }
     }
 }
@@ -193,7 +187,32 @@ private fun QuoteMenuItem(item: MenuItemSpec) {
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.width(180.dp),
         )
-        QuoteMenuIcon(item.iconName, iconColor)
+        if (item.showIcon) {
+            QuoteMenuIcon(item.iconName, iconColor)
+        }
+    }
+}
+
+/**
+ * Apply-changes card — отдельная 250×48dp карта с пунктом «Применить изменения» БЕЗ
+ * иконки. Используется в variant 3 (MODAL_STICKY) split-apply layout: одна и та же
+ * карта рендерится под основным меню на tab=0 (Ответ) и под LinkPopoverCard на tab=1
+ * (Ссылка).
+ */
+@Composable
+internal fun QuoteMenuApplyChangesCard(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val isDark = LocalIsDark.current
+    val containerBg = appSurface02(isDark)
+    Box(
+        modifier = modifier
+            .width(250.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(containerBg),
+    ) {
+        QuoteMenuItem(MenuItemSpec(APPLY_LABEL, APPLY_ICON, showIcon = false, onClick = onClick))
     }
 }
 

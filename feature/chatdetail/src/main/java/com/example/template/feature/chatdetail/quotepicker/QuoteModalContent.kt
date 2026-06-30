@@ -420,6 +420,17 @@ fun QuoteModalContent(
                         },
                         splitApply = isSticky,
                     )
+                } else if (variant == QuoteVariant.MODAL_STICKY) {
+                    // Variant 3 Ссылка tab: LinkPopoverCard + 4dp gap + apply card (без
+                    // иконки), миррор Ответ tab split-apply.
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        QuoteModalLinkPopoverCard(
+                            selectedIndex = linkPopoverSelection,
+                            onSelect = { linkPopoverSelection = it },
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        QuoteMenuApplyChangesCard(onClick = applyClick)
+                    }
                 } else {
                     QuoteModalLinkPopoverCard(
                         selectedIndex = linkPopoverSelection,
