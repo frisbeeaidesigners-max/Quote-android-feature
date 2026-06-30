@@ -44,12 +44,13 @@ private val RobotoFamilyV2 = FontFamily(
 )
 
 /**
- * V2 (MODAL_BUTTONS) — нижний Header модалки с круглыми кнопками-стрелками по бокам.
- * Свайп между вкладками отключён в QuoteModalContent (см. branch на variant); переключение
- * только тапом по [onPrev]/[onNext]. Для двух вкладок оба колбэка фактически toggle'ят tab.
+ * V2 (MODAL_BUTTONS) — нижний Header модалки. С [showButtons] = true (linkRender=ON) — pill с
+ * круглыми кнопками-стрелками по бокам, переключение tab'а тапом по [onPrev]/[onNext]; для двух
+ * вкладок оба колбэка фактически toggle'ят tab. С [showButtons] = false (linkRender=OFF) — те же
+ * pill + центральная колонка с Title/Description, но без стрелок (одна-tab режим).
  *
  * Геометрия (Figma node 8857:940577): pill-формы, padding 8dp внутри, gap 8dp между детьми.
- * Левый/правый круглые батоны 36dp, центральная колонка занимает оставшееся пространство.
+ * Левый/правый круглые батоны 40dp, центральная колонка занимает оставшееся пространство.
  */
 @Composable
 internal fun QuoteModalButtonsHeader(
@@ -58,17 +59,22 @@ internal fun QuoteModalButtonsHeader(
     onPrev: () -> Unit,
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
+    showButtons: Boolean = true,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CircleArrowButton(iconName = "arrow-left-m", onClick = onPrev)
+        if (showButtons) {
+            CircleArrowButton(iconName = "arrow-left-m", onClick = onPrev)
+        }
         Box(modifier = Modifier.weight(1f)) {
             ButtonsHeaderText(tab = selectedTab, menuState = menuState)
         }
-        CircleArrowButton(iconName = "arrow-right-m", onClick = onNext)
+        if (showButtons) {
+            CircleArrowButton(iconName = "arrow-right-m", onClick = onNext)
+        }
     }
 }
 

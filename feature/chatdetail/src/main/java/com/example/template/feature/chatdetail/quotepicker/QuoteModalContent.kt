@@ -203,14 +203,14 @@ fun QuoteModalContent(
         horizontalAlignment = Alignment.Start,
     ) {
         val handleOverflowPx = with(density) { 24.dp.roundToPx() }
-        // V1 sticky-header режим: linkRender OFF → sticky header INSIDE preview Box, без
-        // внешнего bottom footer'а — единый вид для DOTS и BUTTONS. Зеркалит первую
-        // итерацию Modal'а из sibling android-template-quote @ 4c4036f.
-        val useV1StickyHeader = !linkRender
-        // Preview Box corner radius:
-        //  - DOTS+ON, любой OFF → 24dp (V1/V2 dots-style)
-        //  - BUTTONS+ON → 34dp (более выраженный pill вокруг floating pill-хедера)
-        val previewCornerRadius = if (variant == QuoteVariant.MODAL_DOTS || useV1StickyHeader) 24.dp else 34.dp
+        // V1 sticky-header режим — только DOTS + linkRender=OFF: sticky header INSIDE preview
+        // Box, без внешнего bottom footer'а. Зеркалит первую итерацию Modal'а из sibling
+        // android-template-quote @ 4c4036f. BUTTONS+OFF использует тот же pill что BUTTONS+ON,
+        // но без стрелок-кнопок — см. ButtonsHeader(showButtons=false) ниже.
+        val useV1StickyHeader = !linkRender && variant == QuoteVariant.MODAL_DOTS
+        // Preview Box corner radius: DOTS → 24dp, BUTTONS → 34dp (более выраженный pill вокруг
+        // floating pill-хедера). От linkRender не зависит.
+        val previewCornerRadius = if (variant == QuoteVariant.MODAL_DOTS) 24.dp else 34.dp
         Box(
             Modifier
                 .fillMaxWidth()
@@ -253,11 +253,12 @@ fun QuoteModalContent(
             // бабл по умолчанию сидел 16dp выше пилла, ниже в content-Column'е добавим Spacer
             // высотой [bottomContentReserve] = 66 (пилл с inset) + 16 = 82dp.
             val contentBottomPad = if (linkRender && variant == QuoteVariant.MODAL_DOTS) 74.dp else 0.dp
-            // V1 sticky-header режим — bottomReserve уменьшен с 82 до 16dp (нет нижнего pill'а
-            // / footer'а, под которым нужно резервировать место).
+            // V1 sticky-header режим (DOTS+OFF) — bottomReserve 16dp (нет нижнего pill'а).
+            // BUTTONS (ON или OFF) — 82dp под floating pill'ом (даже без стрелок pill остаётся).
+            // DOTS+ON — 16dp (footer внутри Box'а через contentBottomPad).
             val bottomContentReserve = when {
                 useV1StickyHeader -> 16.dp
-                linkRender && variant == QuoteVariant.MODAL_DOTS -> 16.dp
+                variant == QuoteVariant.MODAL_DOTS -> 16.dp
                 else -> 82.dp
             }
             AnimatedContent(
@@ -365,12 +366,27 @@ fun QuoteModalContent(
                             .padding(8.dp),
                     )
                 }
-            } else {
-                // OFF — V1 sticky header INSIDE preview Box (TopCenter), без bottom footer'а.
-                // Единый вид для DOTS и BUTTONS — отличие между ними остаётся только при ON.
-                QuoteModalStickyHeader(
+            } else when (variant) {
+                // DOTS+OFF — V1 sticky header INSIDE preview Box (TopCenter), без bottom footer'а.
+                QuoteVariant.MODAL_DOTS -> QuoteModalStickyHeader(
                     menuState = menuState,
                     modifier = Modifier.align(Alignment.TopCenter),
+                )
+                // BUTTONS+OFF — тот же floating pill что BUTTONS+ON, но без стрелок-кнопок.
+                QuoteVariant.MODAL_BUTTONS -> QuoteModalButtonsHeader(
+                    selectedTab = selectedTab,
+                    menuState = menuState,
+                    onPrev = {},
+                    onNext = {},
+                    showButtons = false,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                        .fillMaxWidth()
+                        .height(58.dp)
+                        .clip(RoundedCornerShape(50))
+                        .background(appSurface01(isDark))
+                        .padding(8.dp),
                 )
             }
         }
